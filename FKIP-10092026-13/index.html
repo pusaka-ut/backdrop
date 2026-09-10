@@ -545,5 +545,39 @@
   draw();
 })();
 </script>
+<button id="fs-btn" onclick="toggleFS()" title="Fullscreen">
+  <svg id="fs-icon-enter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+  <svg id="fs-icon-exit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+</button>
+<style>
+  #fs-btn {
+    position: fixed; bottom: 2%; right: 2%; z-index: 999;
+    width: clamp(32px, 3vw, 48px); height: clamp(32px, 3vw, 48px);
+    background: rgba(3,70,148,0.3); border: 1px solid rgba(255,222,0,0.4);
+    border-radius: 8px; cursor: pointer; color: #FFDE00;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.35; transition: opacity .25s, background .25s;
+    backdrop-filter: blur(6px);
+  }
+  #fs-btn:hover { opacity: 1; background: rgba(3,70,148,0.6); }
+  #fs-btn svg { width: 55%; height: 55%; }
+</style>
+<script>
+  function toggleFS() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  document.addEventListener('fullscreenchange', function () {
+    var isFS = !!document.fullscreenElement;
+    document.getElementById('fs-icon-enter').style.display = isFS ? 'none' : 'block';
+    document.getElementById('fs-icon-exit').style.display  = isFS ? 'block' : 'none';
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F11' || (e.key === 'f' && !e.ctrlKey && !e.metaKey)) toggleFS();
+  });
+</script>
 </body>
 </html>
