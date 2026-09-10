@@ -1,0 +1,549 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FKIP – Ruangan Digunakan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: "Poppins", sans-serif;
+      background: #000d1a;
+    }
+
+    .stage {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #000d1a;
+    }
+
+    .canvas {
+      position: relative;
+      width: 100vw; height: 56.25vw;
+      max-height: 100vh; max-width: 177.78vh;
+      overflow: hidden;
+    }
+
+    .bg-photo {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 30%;
+      filter: brightness(0.32) saturate(0.5) contrast(1.1);
+      transform: scale(1.04);
+    }
+
+    .bg-overlay-gradient {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg,
+          rgba(0,13,26,0.55) 0%,
+          rgba(0,30,80,0.25) 30%,
+          rgba(0,30,80,0.15) 55%,
+          rgba(0,10,30,0.75) 80%,
+          rgba(0,5,18,0.97) 100%);
+    }
+
+    .bg-overlay-side {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg,
+          rgba(0,5,18,0.85) 0%,
+          transparent 25%,
+          transparent 75%,
+          rgba(0,5,18,0.85) 100%);
+    }
+
+    .scanlines {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 50, 120, 0.03) 2px,
+        rgba(0, 50, 120, 0.03) 4px
+      );
+      pointer-events: none;
+    }
+
+    .grid-overlay {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(3, 70, 148, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(3, 70, 148, 0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      animation: grid-drift 20s linear infinite;
+    }
+
+    @keyframes grid-drift {
+      from { transform: translateY(0); }
+      to   { transform: translateY(60px); }
+    }
+
+    canvas#particles {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    .border-animated {
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+
+    .border-animated::before, .border-animated::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .edge-top {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg,
+        transparent 0%, #034694 20%, #FFDE00 50%, #034694 80%, transparent 100%);
+      animation: shimmer 3.5s ease-in-out infinite;
+    }
+
+    .edge-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg,
+        transparent 0%, #FFDE00 20%, #034694 50%, #FFDE00 80%, transparent 100%);
+      animation: shimmer 3.5s ease-in-out infinite reverse;
+    }
+
+    .edge-left {
+      position: absolute; top: 0; bottom: 0; left: 0; width: 3px;
+      background: linear-gradient(180deg,
+        transparent, #034694 40%, #FFDE00 60%, transparent);
+      animation: shimmer-v 5s ease-in-out infinite;
+    }
+
+    .edge-right {
+      position: absolute; top: 0; bottom: 0; right: 0; width: 3px;
+      background: linear-gradient(180deg,
+        transparent, #FFDE00 40%, #034694 60%, transparent);
+      animation: shimmer-v 5s ease-in-out infinite reverse;
+    }
+
+    @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+    @keyframes shimmer-v { 0%,100%{opacity:.4} 50%{opacity:.9} }
+
+    .hud-corner {
+      position: absolute;
+      width: 5%;
+      aspect-ratio: 1;
+    }
+
+    .hud-corner.tl { top: 4%; left: 3%; border-top: 2px solid #FFDE00; border-left: 2px solid #FFDE00; }
+    .hud-corner.tr { top: 4%; right: 3%; border-top: 2px solid #FFDE00; border-right: 2px solid #FFDE00; }
+    .hud-corner.bl { bottom: 4%; left: 3%; border-bottom: 2px solid rgba(3,70,148,0.7); border-left: 2px solid rgba(3,70,148,0.7); }
+    .hud-corner.br { bottom: 4%; right: 3%; border-bottom: 2px solid rgba(3,70,148,0.7); border-right: 2px solid rgba(3,70,148,0.7); }
+
+    .layout {
+      position: absolute; inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 4% 5% 3.5%;
+    }
+
+    .header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      animation: fade-in-down 1s ease-out 0.2s both;
+    }
+
+    .logo-block {
+      display: flex; align-items: center; gap: 1.5%;
+    }
+
+    .logo-img {
+      height: clamp(28px, 5.5vh, 52px);
+      width: auto;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+    }
+
+    .clock-block { text-align: right; animation: fade-in-down 1s ease-out 0.35s both; }
+
+    .clock-time {
+      font-family: "Orbitron", monospace;
+      font-size: clamp(22px, 3.4vw, 52px);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 20px rgba(3,70,148,0.8), 0 0 40px rgba(3,70,148,0.4);
+    }
+
+    .clock-date {
+      font-size: clamp(7px, 0.85vw, 12px);
+      font-weight: 400; color: #FFDE00;
+      letter-spacing: 0.1em; text-align: right;
+      margin-top: 0.5em; opacity: 0.9;
+    }
+
+    .body {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 0;
+    }
+
+    .pill-tag {
+      display: inline-flex; align-items: center; gap: 0.7em;
+      background: rgba(255, 222, 0, 0.08);
+      border: 1px solid rgba(255, 222, 0, 0.3);
+      border-radius: 100px;
+      padding: 0.45em 1.6em;
+      margin-bottom: 2.5%;
+      animation: fade-in-up 1s ease-out 0.5s both;
+      backdrop-filter: blur(4px);
+    }
+
+    .pill-dot {
+      width: 0.55em; height: 0.55em;
+      border-radius: 50%; background: #FFDE00;
+      animation: pulse-dot 2s ease-in-out infinite;
+      box-shadow: 0 0 6px #FFDE00;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse-dot {
+      0%,100%{ opacity:1; transform:scale(1); box-shadow:0 0 6px #FFDE00; }
+      50%{ opacity:0.4; transform:scale(0.6); box-shadow:0 0 2px #FFDE00; }
+    }
+
+    .pill-text {
+      font-size: clamp(7px, 0.8vw, 11px);
+      font-weight: 600; color: #FFDE00;
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+
+    .label-text {
+      font-size: clamp(9px, 1vw, 15px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.5em;
+      animation: fade-in-up 1s ease-out 0.65s both;
+    }
+
+    .headline-wrap {
+      animation: fade-in-up 1s ease-out 0.75s both;
+      margin-bottom: 2%;
+      position: relative;
+    }
+
+    .headline {
+      font-size: clamp(28px, 6vw, 92px);
+      font-weight: 800;
+      line-height: 1.02;
+      letter-spacing: -0.015em;
+      color: #ffffff;
+    }
+
+    .headline .hl-blue {
+      color: #ffffff;
+      position: relative;
+    }
+
+    .headline .hl-yellow {
+      color: #FFDE00;
+      text-shadow: 0 0 30px rgba(255,222,0,0.35), 0 0 60px rgba(255,222,0,0.15);
+    }
+
+    .divider-wrap {
+      display: flex; align-items: center; gap: 1.5%;
+      width: 50%; margin: 2.5% 0;
+      animation: fade-in-up 1s ease-out 0.9s both;
+    }
+
+    .div-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,222,0,0.45), transparent);
+    }
+
+    .div-diamond {
+      width: 0.5em; height: 0.5em;
+      background: #FFDE00; transform: rotate(45deg);
+      flex-shrink: 0;
+      box-shadow: 0 0 8px rgba(255,222,0,0.5);
+    }
+
+    .meta-row {
+      display: flex; align-items: stretch; gap: 3%;
+      animation: fade-in-up 1s ease-out 1s both;
+      margin-bottom: 2%;
+    }
+
+    .meta-card {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: rgba(3, 70, 148, 0.18);
+      border: 1px solid rgba(3, 70, 148, 0.5);
+      border-top: 2px solid rgba(3, 70, 148, 0.9);
+      border-radius: 10px;
+      padding: 2% 5%;
+      min-width: 18vw;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .meta-card::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(3,70,148,0.15) 0%, transparent 70%);
+    }
+
+    .meta-card::after {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(transparent 0deg, rgba(3,70,148,0.1) 60deg, transparent 120deg);
+      animation: rotate-glow 8s linear infinite;
+    }
+
+    @keyframes rotate-glow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .card-label {
+      font-size: clamp(6px, 0.72vw, 10px);
+      font-weight: 600; color: #FFDE00;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      margin-bottom: 0.5em; position: relative; z-index: 1;
+      opacity: 0.9;
+    }
+
+    .card-value {
+      font-family: "Orbitron", monospace;
+      font-size: clamp(18px, 3vw, 46px);
+      font-weight: 700; color: #ffffff;
+      line-height: 1; position: relative; z-index: 1;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    .card-value .unit {
+      font-family: "Poppins", sans-serif;
+      font-size: 0.35em; font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      margin-left: 0.3em;
+    }
+
+    .meta-sep {
+      display: flex; align-items: center;
+      color: rgba(255,255,255,0.15);
+      font-size: clamp(18px, 2.2vw, 36px); font-weight: 300;
+    }
+
+    .footer {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1%;
+      animation: fade-in-up 1s ease-out 1.15s both;
+    }
+
+    .footer-sep {
+      width: 35%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      margin-bottom: 1.2%;
+    }
+
+    .footer-main {
+      font-size: clamp(9px, 1.1vw, 17px);
+      font-weight: 500; color: rgba(255,255,255,0.78);
+      letter-spacing: 0.035em;
+    }
+
+    .footer-sub {
+      font-size: clamp(7px, 0.75vw, 11px);
+      font-weight: 300; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.07em;
+    }
+
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in-down {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="stage">
+  <div class="canvas">
+
+    <img class="bg-photo" src="images.jpg" alt="" aria-hidden="true" />
+    <div class="bg-overlay-gradient"></div>
+    <div class="bg-overlay-side"></div>
+    <div class="scanlines"></div>
+    <div class="grid-overlay"></div>
+
+    <canvas id="particles"></canvas>
+
+    <div class="edge-top"></div>
+    <div class="edge-bottom"></div>
+    <div class="edge-left"></div>
+    <div class="edge-right"></div>
+
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div>
+    <div class="hud-corner br"></div>
+
+    <div class="layout">
+
+      <header class="header">
+        <div class="logo-block">
+          <img class="logo-img" src="images.png" alt="Logo FKIP Universitas Terbuka" />
+        </div>
+        <div class="clock-block">
+          <div class="clock-time" id="js-clock">00:00:00</div>
+          <div class="clock-date" id="js-date">—</div>
+        </div>
+      </header>
+
+      <main class="body">
+        <div class="pill-tag">
+          <span class="pill-dot"></span>
+          <span class="pill-text">Pemberitahuan Penggunaan Ruangan</span>
+        </div>
+
+        <p class="label-text">Ruangan ini digunakan oleh</p>
+
+        <div class="headline-wrap">
+          <h1 class="headline">
+            <span class="hl-blue">FKIP</span> <span class="hl-yellow">Universitas Terbuka</span>
+          </h1>
+        </div>
+
+        <div class="divider-wrap">
+          <div class="div-line"></div>
+          <div class="div-diamond"></div>
+          <div class="div-line"></div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-card">
+            <span class="card-label">Tanggal</span>
+            <span class="card-value">10 Sep<span class="unit">2026</span></span>
+          </div>
+          <div class="meta-sep">·</div>
+          <div class="meta-card">
+            <span class="card-label">Mulai Pukul</span>
+            <span class="card-value">13.00<span class="unit">WIB</span></span>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-sep"></div>
+        <p class="footer-main">Terima kasih telah berkunjung &nbsp;&middot;&nbsp; Semoga kegiatan berjalan dengan lancar</p>
+        <p class="footer-sub">Fakultas Keguruan dan Ilmu Pendidikan &nbsp;|&nbsp; Universitas Terbuka &nbsp;|&nbsp; 2026</p>
+      </footer>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DAYS   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  var MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var clockEl = document.getElementById('js-clock');
+  var dateEl  = document.getElementById('js-date');
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    var now = new Date();
+    clockEl.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    dateEl.textContent  = DAYS[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+(function () {
+  var canvas = document.getElementById('particles');
+  var ctx    = canvas.getContext('2d');
+  var W, H, dots;
+
+  function resize() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width  = rect.width;
+    H = canvas.height = rect.height;
+    init();
+  }
+
+  function rand(a, b) { return Math.random() * (b - a) + a; }
+
+  function init() {
+    var count = Math.floor((W * H) / 12000);
+    dots = [];
+    for (var i = 0; i < count; i++) {
+      var isYellow = Math.random() > 0.78;
+      dots.push({
+        x: rand(0, W), y: rand(0, H),
+        r: rand(0.8, 2.5),
+        vx: rand(-0.18, 0.18),
+        vy: rand(-0.14, 0.14),
+        alpha: rand(0.06, 0.22),
+        r_color: isYellow ? 255 : 3,
+        g_color: isYellow ? 222 : 70,
+        b_color: isYellow ? 0   : 148,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i];
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + d.r_color + ',' + d.g_color + ',' + d.b_color + ',' + d.alpha + ')';
+      ctx.fill();
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < -10) d.x = W + 10;
+      if (d.x > W + 10) d.x = -10;
+      if (d.y < -10) d.y = H + 10;
+      if (d.y > H + 10) d.y = -10;
+    }
+
+    for (var i = 0; i < dots.length; i++) {
+      for (var j = i + 1; j < dots.length; j++) {
+        var dx   = dots[i].x - dots[j].x;
+        var dy   = dots[i].y - dots[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          ctx.globalAlpha = (1 - dist / 100) * 0.14;
+          ctx.strokeStyle = 'rgba(3,70,148,1)';
+          ctx.lineWidth   = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(dots[i].x, dots[i].y);
+          ctx.lineTo(dots[j].x, dots[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+})();
+</script>
+</body>
+</html>

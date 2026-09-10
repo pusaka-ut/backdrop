@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backdrop Generator — Firstdeyan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:"Poppins",sans-serif; background:#020e24; color:#fff; min-height:100vh; padding:5% 6%; }
+    .header { margin-bottom:4%; }
+    .header h1 { font-size:clamp(20px,3vw,42px); font-weight:800; color:#fff; }
+    .header h1 span { color:#FFDE00; }
+    .header p { color:rgba(255,255,255,0.5); font-size:clamp(10px,1vw,14px); margin-top:0.5em; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:2%; }
+    .card {
+      display:block; text-decoration:none;
+      background:rgba(3,70,148,0.15);
+      border:1px solid rgba(3,70,148,0.4);
+      border-top:2px solid #034694;
+      border-radius:12px;
+      padding:7% 8%;
+      transition:border-color .2s, transform .2s, background .2s;
+    }
+    .card:hover { border-color:#FFDE00; background:rgba(3,70,148,0.28); transform:translateY(-3px); }
+    .card .badge {
+      display:inline-block;
+      background:rgba(255,222,0,0.1); border:1px solid rgba(255,222,0,0.3);
+      border-radius:100px; padding:0.2em 0.9em;
+      font-size:10px; font-weight:600; color:#FFDE00;
+      letter-spacing:0.12em; text-transform:uppercase;
+      margin-bottom:0.8em;
+    }
+    .card h2 { font-size:clamp(13px,1.3vw,18px); font-weight:700; color:#fff; margin-bottom:0.3em; }
+    .card p { font-size:clamp(9px,0.8vw,12px); color:rgba(255,255,255,0.45); }
+    .footer-note { margin-top:4%; color:rgba(255,255,255,0.25); font-size:11px; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Backdrop <span>Collection</span></h1>
+    <p>Daftar semua backdrop digital — buka di browser untuk tampilan fullscreen di TV</p>
+  </div>
+  <div class="grid">
+    <a class="card" href="./FKIP-10092026-13/">
+      <span class="badge">10 Sep 2026</span>
+      <h2>FKIP – Ruangan Digunakan</h2>
+      <p>Pukul 13.00 WIB &nbsp;·&nbsp; Tampilan TV 16:9</p>
+    </a>
+  </div>
+  <p class="footer-note">Firstdeyan · Backdrop Generator · pusaka-ut/backdrop</p>
+</body>
+</html>
