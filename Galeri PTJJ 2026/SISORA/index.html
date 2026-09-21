@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backdrop</title>
+  <script src="config.js"></script>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#000810}
+
+    .stage{
+      position:fixed;inset:0;
+      display:grid;
+      grid-template-columns:68fr 3px 29fr;
+    }
+
+    .zone{position:relative;overflow:hidden;background:#000810}
+
+    .zone canvas{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      transition:opacity .6s ease;
+    }
+
+    .zone video{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      object-fit:cover;
+      opacity:0;
+      transition:opacity .35s ease;
+    }
+
+    .zone video.active{opacity:1}
+
+    .hud{position:absolute;inset:0;pointer-events:none;z-index:2}
+
+    .hc{
+      position:absolute;
+      width:clamp(14px,1.8vw,26px);
+      height:clamp(14px,1.8vw,26px);
+    }
+    .hc.tl{top:10px;left:10px;border-top:1.5px solid rgba(0,212,255,.55);border-left:1.5px solid rgba(0,212,255,.55)}
+    .hc.tr{top:10px;right:10px;border-top:1.5px solid rgba(0,212,255,.55);border-right:1.5px solid rgba(0,212,255,.55)}
+    .hc.bl{bottom:10px;left:10px;border-bottom:1.5px solid rgba(0,212,255,.55);border-left:1.5px solid rgba(0,212,255,.55)}
+    .hc.br{bottom:10px;right:10px;border-bottom:1.5px solid rgba(0,212,255,.55);border-right:1.5px solid rgba(0,212,255,.55)}
+
+    .sep{
+      position:relative;z-index:5;
+      background:linear-gradient(to bottom,
+        transparent 0%,
+        rgba(0,180,240,.3) 8%,
+        #00C8FF 35%,
+        #0077FF 50%,
+        #00C8FF 65%,
+        rgba(0,180,240,.3) 92%,
+        transparent 100%);
+      box-shadow:0 0 14px rgba(0,200,255,.9),0 0 28px rgba(0,100,255,.4);
+      animation:sep-breathe 3.5s ease-in-out infinite;
+    }
+
+    @keyframes sep-breathe{0%,100%{opacity:.6}50%{opacity:1}}
+
+    .outer-frame{
+      position:fixed;inset:0;z-index:10;pointer-events:none;
+      box-shadow:inset 0 0 0 1px rgba(0,212,255,.1);
+    }
+
+    .oc{
+      position:fixed;z-index:11;pointer-events:none;
+      width:clamp(20px,2.5vw,40px);height:clamp(20px,2.5vw,40px);
+    }
+    .oc.tl{top:7px;left:7px;border-top:1.5px solid rgba(0,212,255,.4);border-left:1.5px solid rgba(0,212,255,.4)}
+    .oc.tr{top:7px;right:7px;border-top:1.5px solid rgba(0,212,255,.4);border-right:1.5px solid rgba(0,212,255,.4)}
+    .oc.bl{bottom:7px;left:7px;border-bottom:1.5px solid rgba(0,212,255,.4);border-left:1.5px solid rgba(0,212,255,.4)}
+    .oc.br{bottom:7px;right:7px;border-bottom:1.5px solid rgba(0,212,255,.4);border-right:1.5px solid rgba(0,212,255,.4)}
+
+    .ctrl{
+      position:fixed;bottom:12px;right:12px;z-index:20;
+      display:flex;gap:6px;
+    }
+
+    .ctrl button{
+      width:32px;height:32px;
+      background:rgba(0,15,35,.75);
+      border:1px solid rgba(0,212,255,.25);
+      border-radius:7px;cursor:pointer;
+      color:rgba(0,212,255,.7);
+      display:flex;align-items:center;justify-content:center;
+      opacity:.3;transition:opacity .2s,background .2s;padding:0;
+    }
+    .ctrl button:hover{opacity:1;background:rgba(0,212,255,.15)}
+    .ctrl button svg{
+      width:15px;height:15px;
+      stroke:currentColor;fill:none;
+      stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+    }
+  </style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="zone" id="zl">
+    <canvas id="ph-l"></canvas>
+    <video id="vl0" playsinline></video>
+    <video id="vl1" playsinline></video>
+    <div class="hud">
+      <div class="hc tl"></div><div class="hc tr"></div>
+      <div class="hc bl"></div><div class="hc br"></div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="zone" id="zp">
+    <canvas id="ph-p"></canvas>
+    <video id="vp0" playsinline></video>
+    <video id="vp1" playsinline></video>
+    <div class="hud">
+      <div class="hc tl"></div><div class="hc tr"></div>
+      <div class="hc bl"></div><div class="hc br"></div>
+    </div>
+  </div>
+</div>
+
+<div class="outer-frame"></div>
+<div class="oc tl"></div><div class="oc tr"></div>
+<div class="oc bl"></div><div class="oc br"></div>
+
+<div class="ctrl">
+  <button id="btn-audio" title="Toggle suara">
+    <svg id="ico-mute" viewBox="0 0 24 24">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+    <svg id="ico-vol" viewBox="0 0 24 24" style="display:none">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>
+  </button>
+  <button id="btn-fs" title="Fullscreen">
+    <svg id="ico-enter" viewBox="0 0 24 24">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+    </svg>
+    <svg id="ico-exit" viewBox="0 0 24 24" style="display:none">
+      <path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+(function () {
+  var CFG     = window.BACKDROP_CONFIG || { landscape: [], portrait: [] };
+  var isMuted = true;
+
+  function initPlaceholder(cvId) {
+    var cv    = document.getElementById(cvId);
+    var ct    = cv.getContext('2d');
+    var nodes = [];
+    var t     = 0;
+
+    function resize() {
+      cv.width  = cv.parentElement.offsetWidth;
+      cv.height = cv.parentElement.offsetHeight;
+      nodes     = [];
+      var count = Math.floor((cv.width * cv.height) / 7500);
+      for (var i = 0; i < count; i++) {
+        nodes.push({
+          x:  Math.random() * cv.width,
+          y:  Math.random() * cv.height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          r:  Math.random() * 1.6 + 0.4,
+          a:  Math.random() * 0.45 + 0.08
+        });
+      }
+    }
+
+    function draw() {
+      var W = cv.width;
+      var H = cv.height;
+
+      ct.fillStyle = '#000810';
+      ct.fillRect(0, 0, W, H);
+
+      ct.strokeStyle = 'rgba(0,80,160,.07)';
+      ct.lineWidth   = 0.5;
+      var gs = 54;
+      for (var x = 0; x < W; x += gs) { ct.beginPath(); ct.moveTo(x, 0); ct.lineTo(x, H); ct.stroke(); }
+      for (var y = 0; y < H; y += gs) { ct.beginPath(); ct.moveTo(0, y); ct.lineTo(W, y); ct.stroke(); }
+
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < -5) n.x = W + 5;
+        if (n.x > W + 5) n.x = -5;
+        if (n.y < -5) n.y = H + 5;
+        if (n.y > H + 5) n.y = -5;
+      }
+
+      ct.lineWidth = 0.5;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx   = nodes[i].x - nodes[j].x;
+          var dy   = nodes[i].y - nodes[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 115) {
+            ct.globalAlpha = (1 - dist / 115) * 0.28;
+            ct.strokeStyle = 'rgba(0,200,255,1)';
+            ct.beginPath();
+            ct.moveTo(nodes[i].x, nodes[i].y);
+            ct.lineTo(nodes[j].x, nodes[j].y);
+            ct.stroke();
+          }
+        }
+      }
+      ct.globalAlpha = 1;
+
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        ct.beginPath();
+        ct.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ct.fillStyle = 'rgba(0,212,255,' + n.a + ')';
+        ct.fill();
+      }
+
+      t = (t + 0.8) % (H + 60);
+      var sg = ct.createLinearGradient(0, t - 30, 0, t + 30);
+      sg.addColorStop(0, 'transparent');
+      sg.addColorStop(0.5, 'rgba(0,180,255,.05)');
+      sg.addColorStop(1, 'transparent');
+      ct.fillStyle = sg;
+      ct.fillRect(0, t - 30, W, 60);
+
+      var pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.0009);
+      var cx    = W / 2;
+      var cy    = H / 2;
+      var rr    = Math.min(W, H) * 0.055;
+      ct.beginPath();
+      ct.arc(cx, cy, rr * (1 + pulse * 0.07), 0, Math.PI * 2);
+      ct.strokeStyle = 'rgba(0,200,255,' + (0.07 + pulse * 0.06) + ')';
+      ct.lineWidth   = 1;
+      ct.stroke();
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  }
+
+  function createEngine(idA, idB, playlist, phId) {
+    var va   = document.getElementById(idA);
+    var vb   = document.getElementById(idB);
+    var ph   = document.getElementById(phId);
+    var cur  = 0;
+    var actI = 0;
+    var vids = [va, vb];
+    var busy = false;
+
+    function hidePh() {
+      ph.style.opacity       = '0';
+      ph.style.pointerEvents = 'none';
+    }
+
+    function tryPlay(el) {
+      el.muted = isMuted;
+      return el.play().catch(function () {
+        el.muted = true;
+        return el.play();
+      });
+    }
+
+    function activate(el) {
+      el.classList.add('active');
+      hidePh();
+      busy = false;
+    }
+
+    function switchTo(nextCur) {
+      if (busy) return;
+      busy  = true;
+      cur   = nextCur;
+      var nextI = 1 - actI;
+      var curr  = vids[actI];
+      var next  = vids[nextI];
+      next.src   = playlist[cur];
+      next.load();
+      next.muted = isMuted;
+      next.oncanplay = function () {
+        next.oncanplay = null;
+        tryPlay(next).then(function () {
+          curr.classList.remove('active');
+          curr.pause();
+          curr.removeAttribute('src');
+          curr.load();
+          activate(next);
+          actI = nextI;
+        });
+      };
+    }
+
+    if (playlist.length === 0) {
+      return { setMuted: function () {} };
+    }
+
+    va.addEventListener('ended', function () {
+      if (playlist.length === 1) { va.currentTime = 0; va.play().catch(function () {}); }
+      else { switchTo((cur + 1) % playlist.length); }
+    });
+
+    vb.addEventListener('ended', function () {
+      if (playlist.length === 1) { vb.currentTime = 0; vb.play().catch(function () {}); }
+      else { switchTo((cur + 1) % playlist.length); }
+    });
+
+    va.addEventListener('error', function () {
+      busy = false;
+      if (playlist.length > 1) setTimeout(function () { switchTo((cur + 1) % playlist.length); }, 600);
+    });
+
+    vb.addEventListener('error', function () {
+      busy = false;
+      if (playlist.length > 1) setTimeout(function () { switchTo((cur + 1) % playlist.length); }, 600);
+    });
+
+    va.src   = playlist[0];
+    va.muted = isMuted;
+    va.load();
+    va.oncanplay = function () {
+      va.oncanplay = null;
+      tryPlay(va).then(function () { activate(va); });
+    };
+
+    return {
+      setMuted: function (m) {
+        isMuted  = m;
+        va.muted = m;
+        vb.muted = m;
+      }
+    };
+  }
+
+  initPlaceholder('ph-l');
+  initPlaceholder('ph-p');
+
+  var engL = createEngine('vl0', 'vl1', CFG.landscape || [], 'ph-l');
+  var engP = createEngine('vp0', 'vp1', CFG.portrait  || [], 'ph-p');
+
+  var btnAudio = document.getElementById('btn-audio');
+  var icoMute  = document.getElementById('ico-mute');
+  var icoVol   = document.getElementById('ico-vol');
+
+  btnAudio.addEventListener('click', function () {
+    isMuted = !isMuted;
+    engL.setMuted(isMuted);
+    engP.setMuted(isMuted);
+    icoMute.style.display = isMuted ? 'block' : 'none';
+    icoVol.style.display  = isMuted ? 'none'  : 'block';
+  });
+
+  var btnFs    = document.getElementById('btn-fs');
+  var icoEnter = document.getElementById('ico-enter');
+  var icoExit  = document.getElementById('ico-exit');
+
+  function toggleFS() {
+    if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen(); }
+  }
+
+  btnFs.addEventListener('click', toggleFS);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'f' || e.key === 'F' || e.key === 'F11') toggleFS();
+  });
+  document.addEventListener('fullscreenchange', function () {
+    var fs             = !!document.fullscreenElement;
+    icoEnter.style.display = fs ? 'none'  : 'block';
+    icoExit.style.display  = fs ? 'block' : 'none';
+  });
+})();
+</script>
+</body>
+</html>
