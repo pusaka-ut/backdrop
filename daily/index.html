@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan Universitas Terbuka — Display Harian</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #e0f7fe 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Plus Jakarta Sans', sans-serif;
+      color: #03456e;
+    }
+
+    .clay-bg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .floating-top-controls {
+      position: fixed;
+      top: 18px;
+      right: 22px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .clay-icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.75), rgba(216, 241, 255, 0.65));
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      color: #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.35;
+      box-shadow:
+        4px 4px 10px rgba(14, 165, 233, 0.12),
+        -3px -3px 8px rgba(255, 255, 255, 0.85),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8);
+      transition: all 0.25s ease;
+    }
+
+    .clay-icon-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+      box-shadow:
+        6px 6px 14px rgba(14, 165, 233, 0.22),
+        -4px -4px 10px rgba(255, 255, 255, 0.95);
+    }
+
+    .clay-app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 28px;
+      z-index: 10;
+    }
+
+    .clay-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 1.68fr 1.12fr;
+      gap: 20px;
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .clay-card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      border-radius: 28px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        16px 16px 36px rgba(14, 165, 233, 0.14),
+        -12px -12px 30px rgba(255, 255, 255, 0.9),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.9),
+        inset -3px -3px 8px rgba(14, 165, 233, 0.06);
+    }
+
+    .col-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .clay-clock-card {
+      flex: 0.95;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .clay-digits {
+      font-size: 5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: #03456e;
+      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8), -2px -2px 4px rgba(14, 165, 233, 0.15);
+    }
+
+    .clay-digits .colon {
+      color: #0ea5e9;
+      animation: blinkSoft 1s infinite;
+    }
+
+    @keyframes blinkSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+
+    .clay-sec {
+      font-size: 1.9rem;
+      font-weight: 500;
+      color: #0284c7;
+      margin-left: 4px;
+    }
+
+    .clay-date {
+      margin-top: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0284c7;
+      background: linear-gradient(145deg, #ffffff, #e0f2fe);
+      padding: 6px 18px;
+      border-radius: 20px;
+      box-shadow:
+        4px 4px 10px rgba(14, 165, 233, 0.12),
+        -3px -3px 8px rgba(255, 255, 255, 0.8);
+    }
+
+    .clay-schedule-card {
+      flex: 1.4;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 20px;
+      min-height: 0;
+    }
+
+    .schedule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .schedule-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .next-prayer-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      padding: 3px 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .prayer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .prayer-row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 14px;
+      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+      border-radius: 14px;
+      box-shadow:
+        3px 3px 8px rgba(14, 165, 233, 0.08),
+        -2px -2px 6px rgba(255, 255, 255, 0.85),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    .prayer-row-item.active {
+      background: linear-gradient(145deg, #e0f2fe, #bae6fd);
+      transform: scale(1.02);
+      box-shadow:
+        5px 5px 12px rgba(14, 165, 233, 0.2),
+        -3px -3px 8px rgba(255, 255, 255, 0.95),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .prayer-info-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .prayer-icon-bubble {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: linear-gradient(145deg, #ffffff, #e0f2fe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    .prayer-name-txt {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #03456e;
+    }
+
+    .prayer-row-item.active .prayer-name-txt {
+      color: #0284c7;
+      font-weight: 800;
+    }
+
+    .prayer-time-txt {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0284c7;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .prayer-row-item.active .prayer-time-txt {
+      color: #03456e;
+    }
+
+    .col-center-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .theater-stage-compact {
+      height: 120px;
+      flex-shrink: 0;
+      position: relative;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #dcf3ff 0%, #bce7fd 60%, #bae6fd 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow:
+        inset 4px 4px 12px rgba(2, 132, 199, 0.15),
+        inset -4px -4px 12px rgba(255, 255, 255, 0.85);
+    }
+
+    .cloud-soft {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50px;
+      filter: blur(1px);
+      animation: cloudDrift linear infinite;
+    }
+
+    .cloud-1 {
+      width: 90px;
+      height: 26px;
+      top: 16px;
+      left: -100px;
+      animation-duration: 22s;
+    }
+
+    .cloud-2 {
+      width: 70px;
+      height: 22px;
+      top: 40px;
+      left: -80px;
+      animation-duration: 28s;
+      animation-delay: 6s;
+    }
+
+    @keyframes cloudDrift {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(750px); }
+    }
+
+    .butterfly-wrap {
+      position: absolute;
+      top: 30%;
+      left: 60%;
+      animation: butterflyFlight 6s ease-in-out infinite alternate;
+      z-index: 15;
+    }
+
+    @keyframes butterflyFlight {
+      0% { transform: translate(0, 0) scale(0.85) rotate(5deg); }
+      30% { transform: translate(-35px, -20px) scale(1) rotate(-15deg); }
+      70% { transform: translate(-10px, -35px) scale(0.9) rotate(10deg); }
+      100% { transform: translate(25px, -15px) scale(1) rotate(-5deg); }
+    }
+
+    .stage-animal-mount {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .animal-actor {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0;
+      transform: scale(0.7) translateY(15px);
+      pointer-events: none;
+    }
+
+    .animal-actor.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+
+    .cat-walk-run {
+      animation: catPlayRun 4s ease-in-out infinite;
+    }
+
+    @keyframes catPlayRun {
+      0%, 100% { transform: translateX(-24px) rotate(0deg); }
+      30% { transform: translateX(8px) translateY(-10px) rotate(6deg); }
+      55% { transform: translateX(28px) translateY(-18px) scale(1.06) rotate(-8deg); }
+      75% { transform: translateX(14px) translateY(0) rotate(2deg); }
+    }
+
+    .penguin-waddle {
+      animation: penguinWaddleHop 3.5s ease-in-out infinite;
+    }
+
+    @keyframes penguinWaddleHop {
+      0%, 100% { transform: rotate(-8deg) translateX(-12px); }
+      25% { transform: rotate(8deg) translateX(0) translateY(-5px); }
+      50% { transform: rotate(-8deg) translateX(12px); }
+      70% { transform: rotate(12deg) translateY(-10px) scale(1.04); }
+      85% { transform: rotate(0) translateY(0); }
+    }
+
+    .bunny-hop {
+      animation: bunnyBouncing 2.6s ease-in-out infinite;
+    }
+
+    @keyframes bunnyBouncing {
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      25% { transform: translateY(-22px) scaleY(1.06) scaleX(0.96); }
+      45% { transform: translateY(0) scaleY(0.94) scaleX(1.06); }
+      60% { transform: translateY(-12px) rotate(6deg); }
+      80% { transform: translateY(0) scale(1); }
+    }
+
+    .hamster-roll {
+      animation: hamsterFun 3s ease-in-out infinite;
+    }
+
+    @keyframes hamsterFun {
+      0%, 100% { transform: scale(1) rotate(0); }
+      25% { transform: translateY(-8px) rotate(-6deg); }
+      50% { transform: translateY(-14px) scale(1.05) rotate(6deg); }
+      75% { transform: translateY(-3px) rotate(0); }
+    }
+
+    .clay-staff-spotlight-card {
+      flex: 1.1;
+      min-height: 0;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      border-radius: 24px;
+      padding: 18px 22px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      box-shadow:
+        16px 16px 36px rgba(14, 165, 233, 0.14),
+        -12px -12px 30px rgba(255, 255, 255, 0.9),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.9),
+        inset -3px -3px 8px rgba(14, 165, 233, 0.06);
+      transition: all 0.4s ease;
+    }
+
+    .staff-photo-frame {
+      width: 135px;
+      height: 165px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #ffffff, #d8f1ff);
+      padding: 5px;
+      box-shadow:
+        6px 6px 16px rgba(14, 165, 233, 0.18),
+        -5px -5px 12px rgba(255, 255, 255, 0.95),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+        inset -2px -2px 4px rgba(2, 132, 199, 0.15);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .staff-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 16px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .staff-content-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .staff-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .staff-nick-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      color: #ffffff;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+    }
+
+    .staff-tag-mini {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0284c7;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .staff-full-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #03456e;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .staff-role-txt {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 8px;
+    }
+
+    .staff-quote-bubble {
+      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #03456e;
+      font-style: italic;
+      font-weight: 500;
+      border-left: 4px solid #0ea5e9;
+      box-shadow:
+        4px 4px 12px rgba(14, 165, 233, 0.08),
+        -3px -3px 8px rgba(255, 255, 255, 0.85),
+        inset 1px 1px 3px rgba(255, 255, 255, 0.9);
+      transition: opacity 0.4s ease;
+    }
+
+    .clay-notice-card {
+      flex: 1;
+      min-height: 0;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      border-radius: 24px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow:
+        12px 12px 28px rgba(14, 165, 233, 0.12),
+        -8px -8px 22px rgba(255, 255, 255, 0.9),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+        inset -2px -2px 4px rgba(14, 165, 233, 0.05);
+      border-left: 4px solid #0284c7;
+      transition: all 0.4s ease;
+    }
+
+    .notice-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .notice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      color: #ffffff;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .notice-source {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0284c7;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .notice-content-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .notice-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #03456e;
+    }
+
+    .notice-desc {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #075985;
+      font-weight: 500;
+    }
+
+    .notice-footer-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .notice-mini-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0284c7;
+      background: rgba(14, 165, 233, 0.1);
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(14, 165, 233, 0.18);
+    }
+
+    .clay-riddle-card {
+      flex: 1.25;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .riddle-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .riddle-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #0ea5e9;
+      color: #ffffff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
+    }
+
+    .riddle-status-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #0284c7;
+      background: rgba(14, 165, 233, 0.12);
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+    }
+
+    .riddle-question {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #03456e;
+      line-height: 1.45;
+      margin-bottom: 8px;
+      min-height: 52px;
+    }
+
+    .riddle-hint-box {
+      background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+      border-radius: 12px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      border-left: 3px solid #38bdf8;
+    }
+
+    .riddle-hint-icon {
+      font-size: 0.95rem;
+    }
+
+    .riddle-hint-txt {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0369a1;
+      font-style: italic;
+    }
+
+    .riddle-answer-vault {
+      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 56px;
+      box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+        inset -2px -2px 4px rgba(14, 165, 233, 0.08);
+      border: 1.5px dashed rgba(14, 165, 233, 0.35);
+      transition: all 0.35s ease;
+    }
+
+    .riddle-answer-vault.revealed {
+      background: linear-gradient(145deg, #e0f2fe, #bae6fd);
+      border: 1.5px solid #0284c7;
+      box-shadow:
+        0 6px 18px rgba(14, 165, 233, 0.25),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.9);
+      animation: vaultPop 0.4s ease forwards;
+    }
+
+    @keyframes vaultPop {
+      0% { transform: scale(0.96); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .vault-locked-state {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .vault-lock-icon {
+      animation: pulseLock 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseLock {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    .vault-revealed-state {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .vault-reveal-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #0284c7;
+      letter-spacing: 0.6px;
+    }
+
+    .vault-reveal-text {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #03456e;
+    }
+
+    .riddle-timer-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(14, 165, 233, 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .riddle-timer-fill {
+      height: 100%;
+      background: #0ea5e9;
+      width: 100%;
+      border-radius: 2px;
+      transition: width 1s linear;
+    }
+
+    .clay-curiosity-card {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .curiosity-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #03456e;
+      margin-bottom: 6px;
+    }
+
+    .curiosity-text {
+      font-size: 0.9rem;
+      line-height: 1.52;
+      color: #0369a1;
+      font-weight: 500;
+      transition: opacity 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="ambient-canvas" class="clay-bg-canvas"></canvas>
+
+  <div class="floating-top-controls">
+    <button class="clay-icon-btn" id="btn-mic" title="Sapa Staf (Manual Speech)">
+      <svg viewBox="0 0 24 24" width="20" height="20">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="clay-icon-btn" id="btn-fullscreen" title="Layar Penuh (F11)">
+      <svg viewBox="0 0 24 24" width="20" height="20">
+        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="clay-app">
+
+    <main class="clay-grid">
+      
+      <div class="col-stack">
+        <div class="clay-card clay-clock-card">
+          <div class="clay-digits">
+            <span id="clk-h">12</span><span class="colon">:</span><span id="clk-m">00</span><span class="clay-sec" id="clk-s">00</span>
+          </div>
+          <div class="clay-date" id="clk-date">Senin, 28 September 2026</div>
+        </div>
+
+        <div class="clay-card clay-schedule-card">
+          <div class="schedule-header">
+            <div class="schedule-title">
+              <span>🕌 Jadwal Sholat</span>
+            </div>
+            <div class="next-prayer-pill" id="next-prayer-pill">Menuju Dzuhur</div>
+          </div>
+          <div class="prayer-list" id="prayer-list"></div>
+        </div>
+      </div>
+
+      <div class="col-center-wrap">
+        
+        <div class="theater-stage-compact">
+          <div class="cloud-soft cloud-1"></div>
+          <div class="cloud-soft cloud-2"></div>
+
+          <div class="butterfly-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path d="M12,4C11.5,2 9,2 7,3.5C5,5 5,8 7,10C9,12 12,13 12,13C12,13 15,12 17,10C19,8 19,5 17,3.5C15,2 12.5,2 12,4M12,14C11,15 9,17 7,18C5,19 6,21 8,21C10,21 11.5,19 12,18C12.5,19 14,21 16,21C18,21 19,19 17,18C15,17 13,15 12,14Z" fill="#38bdf8"/>
+            </svg>
+          </div>
+
+          <div class="stage-animal-mount">
+            
+            <div class="animal-actor active" id="actor-cat">
+              <div class="cat-walk-run">
+                <svg width="180" height="120" viewBox="0 0 220 150">
+                  <ellipse cx="110" cy="85" rx="46" ry="28" fill="#f59e0b"/>
+                  <ellipse cx="110" cy="78" rx="40" ry="24" fill="#fbbf24"/>
+                  <circle cx="70" cy="78" r="22" fill="#fbbf24"/>
+                  <polygon points="58,60 70,72 55,75" fill="#d97706"/>
+                  <polygon points="74,58 84,70 70,73" fill="#d97706"/>
+                  <ellipse cx="64" cy="78" rx="3.5" ry="5" fill="#03456e"/>
+                  <ellipse cx="76" cy="78" rx="3.5" ry="5" fill="#03456e"/>
+                  <circle cx="65" cy="76" r="1.5" fill="#ffffff"/>
+                  <circle cx="77" cy="76" r="1.5" fill="#ffffff"/>
+                  <polygon points="68,84 72,84 70,87" fill="#f43f5e"/>
+                  <path d="M 66 88 Q 70 91 74 88" stroke="#78350f" stroke-width="2" fill="none"/>
+                  <ellipse cx="58" cy="83" rx="4" ry="2.5" fill="#fca5a5"/>
+                  <ellipse cx="82" cy="83" rx="4" ry="2.5" fill="#fca5a5"/>
+                  <rect x="90" y="105" width="12" height="24" rx="6" fill="#fbbf24"/>
+                  <rect x="122" y="105" width="12" height="24" rx="6" fill="#fbbf24"/>
+                  <path d="M 152 82 Q 178 68 174 95 Q 165 110 148 98" fill="#f59e0b"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="animal-actor" id="actor-penguin">
+              <div class="penguin-waddle">
+                <svg width="150" height="130" viewBox="0 0 190 160">
+                  <ellipse cx="95" cy="88" rx="42" ry="52" fill="#0c4a6e"/>
+                  <ellipse cx="95" cy="94" rx="30" ry="40" fill="#ffffff"/>
+                  <circle cx="95" cy="52" r="28" fill="#0c4a6e"/>
+                  <circle cx="86" cy="50" r="5" fill="#ffffff"/>
+                  <circle cx="104" cy="50" r="5" fill="#ffffff"/>
+                  <circle cx="87" cy="50" r="2.5" fill="#082f49"/>
+                  <circle cx="105" cy="50" r="2.5" fill="#082f49"/>
+                  <polygon points="90,56 100,56 95,64" fill="#f59e0b"/>
+                  <ellipse cx="78" cy="56" rx="4" ry="2.5" fill="#fda4af"/>
+                  <ellipse cx="112" cy="56" rx="4" ry="2.5" fill="#fda4af"/>
+                  <ellipse cx="55" cy="95" rx="9" ry="25" fill="#0284c7" transform="rotate(-18 55 95)"/>
+                  <ellipse cx="135" cy="95" rx="9" ry="25" fill="#0284c7" transform="rotate(18 135 95)"/>
+                  <rect x="75" y="136" width="16" height="10" rx="5" fill="#f59e0b"/>
+                  <rect x="99" y="136" width="16" height="10" rx="5" fill="#f59e0b"/>
+                  <rect x="80" y="24" width="30" height="10" rx="3" fill="#38bdf8"/>
+                  <line x1="95" y1="24" x2="95" y2="34" stroke="#ffffff" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="animal-actor" id="actor-bunny">
+              <div class="bunny-hop">
+                <svg width="150" height="130" viewBox="0 0 190 160">
+                  <ellipse cx="95" cy="100" rx="40" ry="32" fill="#ffffff"/>
+                  <circle cx="95" cy="68" r="24" fill="#ffffff"/>
+                  <ellipse cx="82" cy="30" rx="7" ry="24" fill="#ffffff"/>
+                  <ellipse cx="82" cy="30" rx="4" ry="18" fill="#fda4af"/>
+                  <ellipse cx="108" cy="30" rx="7" ry="24" fill="#ffffff"/>
+                  <ellipse cx="108" cy="30" rx="4" ry="18" fill="#fda4af"/>
+                  <circle cx="86" cy="66" r="3.5" fill="#03456e"/>
+                  <circle cx="104" cy="66" r="3.5" fill="#03456e"/>
+                  <polygon points="93,73 97,73 95,76" fill="#f43f5e"/>
+                  <ellipse cx="78" cy="72" rx="4" ry="2.5" fill="#fca5a5"/>
+                  <ellipse cx="112" cy="72" rx="4" ry="2.5" fill="#fca5a5"/>
+                  <ellipse cx="132" cy="108" rx="9" ry="9" fill="#ffffff"/>
+                  <polygon points="120,95 138,88 128,105" fill="#f97316"/>
+                  <polygon points="135,88 144,82 138,92" fill="#22c55e"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="animal-actor" id="actor-hamster">
+              <div class="hamster-roll">
+                <svg width="160" height="130" viewBox="0 0 200 160">
+                  <ellipse cx="100" cy="92" rx="44" ry="38" fill="#fdba74"/>
+                  <ellipse cx="100" cy="98" rx="30" ry="28" fill="#fff7ed"/>
+                  <circle cx="70" cy="74" r="10" fill="#fb923c"/>
+                  <circle cx="70" cy="74" r="5" fill="#fecdd3"/>
+                  <circle cx="130" cy="74" r="10" fill="#fb923c"/>
+                  <circle cx="130" cy="74" r="5" fill="#fecdd3"/>
+                  <circle cx="88" cy="88" r="4.5" fill="#0c4a6e"/>
+                  <circle cx="112" cy="88" r="4.5" fill="#0c4a6e"/>
+                  <polygon points="98,95 102,95 100,98" fill="#f43f5e"/>
+                  <circle cx="78" cy="98" r="9" fill="#fed7aa"/>
+                  <circle cx="122" cy="98" r="9" fill="#fed7aa"/>
+                  <ellipse cx="78" cy="98" rx="4" ry="2.5" fill="#fca5a5"/>
+                  <ellipse cx="122" cy="98" rx="4" ry="2.5" fill="#fca5a5"/>
+                  <ellipse cx="100" cy="115" rx="8" ry="12" fill="#78350f"/>
+                  <line x1="100" y1="106" x2="100" y2="124" stroke="#fef08a" stroke-width="1.5"/>
+                </svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="clay-notice-card" id="notice-card">
+          <div class="notice-top-row">
+            <div class="notice-badge">
+              <span>📢</span>
+              <span id="notice-badge-txt">Info & Wawasan Hari Ini</span>
+            </div>
+            <div class="notice-source">Perpustakaan Pusat UT</div>
+          </div>
+          <div class="notice-content-body">
+            <div class="notice-title" id="notice-title">Semangat Berkarya & Melayani Sepenuh Hati</div>
+            <div class="notice-desc" id="notice-desc">Belum ada agenda atau pengumuman khusus hari ini. Selamat berkarya, tetap semangat, dan jaga kesehatan untuk seluruh rekan hebat Perpustakaan Universitas Terbuka! ✨</div>
+          </div>
+          <div class="notice-footer-pills">
+            <span class="notice-mini-tag">🏛️ Perpustakaan Pusat UT</span>
+            <span class="notice-mini-tag">🌿 Lingkungan Harmonis</span>
+            <span class="notice-mini-tag">✨ Pelayanan Prima</span>
+          </div>
+        </div>
+
+        <div class="clay-staff-spotlight-card" id="staff-spotlight-card">
+          <div class="staff-photo-frame">
+            <img src="./foto-staff/pak kani.webp" alt="Foto Staf" class="staff-photo-img" id="staff-img">
+          </div>
+          <div class="staff-content-right">
+            <div class="staff-badge-row">
+              <span class="staff-nick-pill" id="staff-nick">Kak Kani</span>
+              <span class="staff-tag-mini">Rekan Perpustakaan</span>
+            </div>
+            <div class="staff-full-name" id="staff-fullname">Kani, S.Kom., M.Kom.</div>
+            <div class="staff-role-txt" id="staff-role">Manajer Perpustakaan</div>
+            <div class="staff-quote-bubble" id="staff-quote">
+              Kepemimpinan yang sejati adalah memberdayakan setiap orang untuk berkembang dan memberikan karya terbaiknya.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-stack">
+        <div class="clay-card clay-riddle-card">
+          <div>
+            <div class="riddle-header-row">
+              <div class="riddle-tag" id="riddle-tag">Logika Cerdas</div>
+              <div class="riddle-status-badge" id="riddle-status-badge">⏳ Waktu Berpikir: 18s</div>
+            </div>
+            <div class="riddle-question" id="riddle-q">
+              Jika kamu memiliki aku, kamu ingin membagiku. Jika kamu membagiku, kamu tidak lagi memilikiku. Apakah aku?
+            </div>
+            <div class="riddle-hint-box" id="riddle-hint-box">
+              <span class="riddle-hint-icon">💡</span>
+              <span class="riddle-hint-txt" id="riddle-hint">Petunjuk: Sering diceritakan diam-diam</span>
+            </div>
+            <div class="riddle-answer-vault" id="riddle-box">
+              <div class="vault-locked-state" id="vault-locked">
+                <span class="vault-lock-icon">🔒</span>
+                <span class="vault-lock-text">Jawaban Terkunci — Pikirkan bersama tim!</span>
+              </div>
+              <div class="vault-revealed-state" id="vault-revealed" style="display: none;">
+                <span class="vault-reveal-label">🎉 JAWABAN:</span>
+                <span class="vault-reveal-text" id="riddle-a"></span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="riddle-timer-bar">
+              <div class="riddle-timer-fill" id="riddle-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="clay-card clay-curiosity-card">
+          <div>
+            <div class="riddle-tag" style="background: #0284c7;" id="curiosity-tag">Sains Fokus</div>
+            <div class="curiosity-title" id="curiosity-title">Metode 20-20-20</div>
+            <div class="curiosity-text" id="curiosity-desc">
+              Setiap 20 menit menatap layar monitor, alihkan pandangan ke objek sejauh 6 meter selama 20 detik untuk merelaksasi otot siliaris mata.
+            </div>
+          </div>
+          <div style="font-size: 0.76rem; color: #0284c7; font-weight: 700; text-align: right; margin-top: 10px;">
+            Wawasan Out of The Box 💡
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="./data.js"></script>
+  <script>
+  (function() {
+    const canvas = document.getElementById('ambient-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+    let waveOffset = 0;
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const particles = [];
+    for (let i = 0; i < 22; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: Math.random() * 4 + 2,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        a: Math.random() * 0.35 + 0.15
+      });
+    }
+
+    function renderClayAmbient() {
+      waveOffset += 0.003;
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.moveTo(0, height);
+      for (let x = 0; x <= width; x += 60) {
+        const y = Math.sin(x * 0.002 + waveOffset) * 50 + Math.cos(x * 0.0015 - waveOffset) * 30 + height * 0.74;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(width, height);
+      ctx.closePath();
+      ctx.fill();
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(Math.floor(p.x), Math.floor(p.y), p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.a})`;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(renderClayAmbient);
+    }
+    requestAnimationFrame(renderClayAmbient);
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clk-h').textContent = String(now.getHours()).padStart(2, '0');
+      document.getElementById('clk-m').textContent = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('clk-s').textContent = String(now.getSeconds()).padStart(2, '0');
+
+      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      document.getElementById('clk-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+      updatePrayerRow(now);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function updatePrayerRow(now) {
+      const curMins = now.getHours() * 60 + now.getMinutes();
+      const container = document.getElementById('prayer-list');
+      container.innerHTML = '';
+
+      let nextP = null;
+      let minDiff = Infinity;
+
+      PRAYER_SCHEDULE.forEach((p) => {
+        const pMins = p.hour * 60 + p.minute;
+        const diff = pMins - curMins;
+
+        const row = document.createElement('div');
+        row.className = 'prayer-row-item';
+
+        if (diff > 0 && diff < minDiff) {
+          minDiff = diff;
+          nextP = p;
+          row.classList.add('active');
+        }
+
+        const hStr = String(p.hour).padStart(2, '0');
+        const mStr = String(p.minute).padStart(2, '0');
+
+        row.innerHTML = `
+          <div class="prayer-info-left">
+            <div class="prayer-icon-bubble">${p.icon}</div>
+            <div class="prayer-name-txt">${p.name}</div>
+          </div>
+          <div class="prayer-time-txt">${hStr}:${mStr}</div>
+        `;
+        container.appendChild(row);
+      });
+
+      if (nextP) {
+        const hoursLeft = Math.floor(minDiff / 60);
+        const minsLeft = minDiff % 60;
+        const diffStr = hoursLeft > 0 ? `${hoursLeft}j ${minsLeft}m` : `${minsLeft}m`;
+        document.getElementById('next-prayer-pill').textContent = `${nextP.name} (-${diffStr})`;
+      } else {
+        document.getElementById('next-prayer-pill').textContent = 'Selesai Hari Ini';
+      }
+    }
+
+    const actors = ['actor-cat', 'actor-penguin', 'actor-bunny', 'actor-hamster'];
+    let currentActorIdx = 0;
+
+    function cycleActors() {
+      actors.forEach((actId, idx) => {
+        const el = document.getElementById(actId);
+        if (idx === currentActorIdx) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+      currentActorIdx = (currentActorIdx + 1) % actors.length;
+    }
+    setInterval(cycleActors, 16000);
+
+    let staffIdx = 0;
+    function rotateStaff() {
+      if (!STAFF_MEMBERS || STAFF_MEMBERS.length === 0) return;
+      const s = STAFF_MEMBERS[staffIdx % STAFF_MEMBERS.length];
+
+      const imgEl = document.getElementById('staff-img');
+      const nickEl = document.getElementById('staff-nick');
+      const nameEl = document.getElementById('staff-fullname');
+      const roleEl = document.getElementById('staff-role');
+      const quoteEl = document.getElementById('staff-quote');
+
+      imgEl.style.opacity = '0';
+      quoteEl.style.opacity = '0';
+
+      setTimeout(() => {
+        imgEl.src = s.photo;
+        nickEl.textContent = s.nick;
+        nameEl.textContent = s.name;
+        roleEl.textContent = s.role;
+        quoteEl.textContent = s.quote;
+
+        imgEl.style.opacity = '1';
+        quoteEl.style.opacity = '1';
+      }, 400);
+
+      staffIdx++;
+    }
+    setInterval(rotateStaff, 14000);
+    rotateStaff();
+
+    function updateNotice() {
+      const titleEl = document.getElementById('notice-title');
+      const descEl = document.getElementById('notice-desc');
+      const badgeEl = document.getElementById('notice-badge-txt');
+
+      if (!titleEl || !descEl || !badgeEl) return;
+
+      if (typeof DAILY_NOTICES === 'undefined' || !DAILY_NOTICES || DAILY_NOTICES.length === 0) {
+        badgeEl.textContent = 'Info & Wawasan Hari Ini';
+        titleEl.textContent = 'Semangat Berkarya & Melayani Sepenuh Hati';
+        descEl.textContent = 'Belum ada agenda atau pengumuman khusus hari ini. Selamat berkarya, tetap semangat, dan jaga kesehatan untuk seluruh rekan hebat Perpustakaan Universitas Terbuka! ✨';
+        return;
+      }
+
+      const n = DAILY_NOTICES[0];
+      badgeEl.textContent = n.badge || 'Info Hari Ini';
+      titleEl.textContent = n.title || 'Pengumuman';
+      descEl.textContent = n.desc || '';
+    }
+    updateNotice();
+
+    let riddleIdx = 0;
+    const THINK_TIME = 18;
+    const REVEAL_TIME = 8;
+    let currentPhase = 'think';
+    let phaseSecLeft = THINK_TIME;
+
+    function startRiddle() {
+      if (typeof DAILY_RIDDLES === 'undefined' || DAILY_RIDDLES.length === 0) return;
+      const r = DAILY_RIDDLES[riddleIdx % DAILY_RIDDLES.length];
+      document.getElementById('riddle-tag').textContent = r.category;
+      document.getElementById('riddle-q').textContent = r.question;
+      document.getElementById('riddle-hint').textContent = `Petunjuk: ${r.hint}`;
+
+      const box = document.getElementById('riddle-box');
+      box.classList.remove('revealed');
+      document.getElementById('vault-locked').style.display = 'flex';
+      document.getElementById('vault-revealed').style.display = 'none';
+      document.getElementById('riddle-a').textContent = '';
+      document.getElementById('riddle-status-badge').textContent = `⏳ Waktu Berpikir: ${THINK_TIME}s`;
+
+      currentPhase = 'think';
+      phaseSecLeft = THINK_TIME;
+    }
+    startRiddle();
+
+    setInterval(function() {
+      phaseSecLeft--;
+      const fillEl = document.getElementById('riddle-fill');
+
+      if (currentPhase === 'think') {
+        if (fillEl) {
+          fillEl.style.width = Math.max(0, (phaseSecLeft / THINK_TIME) * 100) + '%';
+        }
+        document.getElementById('riddle-status-badge').textContent = `⏳ Waktu Berpikir: ${phaseSecLeft}s`;
+
+        if (phaseSecLeft <= 0) {
+          currentPhase = 'reveal';
+          phaseSecLeft = REVEAL_TIME;
+          const r = DAILY_RIDDLES[riddleIdx % DAILY_RIDDLES.length];
+          const box = document.getElementById('riddle-box');
+          box.classList.add('revealed');
+          document.getElementById('vault-locked').style.display = 'none';
+          document.getElementById('vault-revealed').style.display = 'flex';
+          document.getElementById('riddle-a').textContent = r.answer;
+          document.getElementById('riddle-status-badge').textContent = '💡 Jawaban Terbuka!';
+          if (fillEl) fillEl.style.width = '100%';
+        }
+      } else if (currentPhase === 'reveal') {
+        if (fillEl) {
+          fillEl.style.width = Math.max(0, (phaseSecLeft / REVEAL_TIME) * 100) + '%';
+        }
+        if (phaseSecLeft <= 0) {
+          riddleIdx++;
+          startRiddle();
+        }
+      }
+    }, 1000);
+
+    let curiosityIdx = 0;
+    function rotateCuriosity() {
+      if (typeof CURIOSITY_INSIGHTS === 'undefined' || CURIOSITY_INSIGHTS.length === 0) return;
+      const c = CURIOSITY_INSIGHTS[curiosityIdx % CURIOSITY_INSIGHTS.length];
+      const descEl = document.getElementById('curiosity-desc');
+      descEl.style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('curiosity-tag').textContent = c.tag;
+        document.getElementById('curiosity-title').textContent = c.title;
+        descEl.textContent = c.desc;
+        descEl.style.opacity = '1';
+      }, 400);
+      curiosityIdx++;
+    }
+    setInterval(rotateCuriosity, 30000);
+    rotateCuriosity();
+
+    const btnFs = document.getElementById('btn-fullscreen');
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+    btnFs.addEventListener('click', toggleFullscreen);
+
+    let lastSpeechStaffIdx = -1;
+    function speakRandomStaff() {
+      if (!('speechSynthesis' in window)) return;
+      if (typeof STAFF_MEMBERS === 'undefined' || STAFF_MEMBERS.length === 0) return;
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * STAFF_MEMBERS.length);
+      } while (idx === lastSpeechStaffIdx && STAFF_MEMBERS.length > 1);
+      lastSpeechStaffIdx = idx;
+
+      const staff = STAFF_MEMBERS[idx];
+      const textToSpeak = staff.speech || `Halo ${staff.nick}, terima kasih atas dedikasi dan kontribusinya untuk Perpustakaan Universitas Terbuka hari ini.`;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.lang = 'id-ID';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+
+      const voices = window.speechSynthesis.getVoices();
+      const idVoice = voices.find((v) => v.lang && (v.lang.includes('id') || v.lang.includes('ID')));
+      if (idVoice) utterance.voice = idVoice;
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const btnMic = document.getElementById('btn-mic');
+    if (btnMic) {
+      btnMic.addEventListener('click', speakRandomStaff);
+    }
+
+    setInterval(speakRandomStaff, 30 * 60 * 1000);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+      if (e.key === 'm' || e.key === 'M' || e.key === ' ') {
+        e.preventDefault();
+        speakRandomStaff();
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>
