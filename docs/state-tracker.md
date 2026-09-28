@@ -8,7 +8,7 @@ File ini digunakan untuk melacak status fitur dan modul di repositori backdrop P
 - [x] Kartu baru "Info Hari Ini" di kolom tengah (bisa dikosongkan dengan fallback ramah otomatis)
 - [x] Kartu sorot foto 18 staf resmi perpustakaan dari `foto-staff/` lengkap dengan quote inspiratif
 - [x] Evaluasi skema tebak-tebakan logika: Mystery Vault terkunci + Clue petunjuk, jawaban tertutup hingga countdown habis
-- [x] Penataan jadwal sholat 5 waktu yang super rapi, simetris, dan berhitung mundur
+- [x] Penataan jadwal sholat 5 waktu hisab resmi Kemenag RI (Kota Tangerang Selatan) dengan auto-fetch API & offline fallback
 - [x] Integrasi Text-to-Speech otomatis setiap 30 menit dengan narasi khusus relevan sesuai jobdesk tiap staf
 - [x] Pembersihan total teks header atas dan running text, hanya tersisa 2 tombol ikon semi-transparan (Mic & Fullscreen)
 - [x] Tautkan modul `daily/` ke menu portal root `index.html`

@@ -235,11 +235,11 @@ const CURIOSITY_INSIGHTS = [
 ];
 
 const PRAYER_SCHEDULE = [
-  { name: 'Subuh', hour: 4, minute: 38, icon: '🌅' },
-  { name: 'Dzuhur', hour: 11, minute: 56, icon: '☀️' },
-  { name: 'Ashar', hour: 15, minute: 10, icon: '🌤️' },
-  { name: 'Maghrib', hour: 17, minute: 59, icon: '🌇' },
-  { name: 'Isya', hour: 19, minute: 8, icon: '🌙' }
+  { name: 'Subuh', hour: 4, minute: 25, icon: '🌅' },
+  { name: 'Dzuhur', hour: 11, minute: 46, icon: '☀️' },
+  { name: 'Ashar', hour: 14, minute: 53, icon: '🌤️' },
+  { name: 'Maghrib', hour: 17, minute: 50, icon: '🌇' },
+  { name: 'Isya', hour: 18, minute: 59, icon: '🌙' }
 ];
 
 const SPEECH_MESSAGES = [

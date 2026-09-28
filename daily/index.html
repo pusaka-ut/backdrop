@@ -270,6 +270,16 @@
       color: #03456e;
     }
 
+    .prayer-source-note {
+      font-size: 0.67rem;
+      font-weight: 700;
+      color: #0284c7;
+      text-align: right;
+      letter-spacing: 0.3px;
+      margin-top: 4px;
+      opacity: 0.85;
+    }
+
     .col-center-wrap {
       display: flex;
       flex-direction: column;
@@ -822,6 +832,7 @@
             <div class="next-prayer-pill" id="next-prayer-pill">Menuju Dzuhur</div>
           </div>
           <div class="prayer-list" id="prayer-list"></div>
+          <div class="prayer-source-note">Kemenag RI · Tangsel</div>
         </div>
       </div>
 
@@ -1143,6 +1154,64 @@
         document.getElementById('next-prayer-pill').textContent = 'Selesai Hari Ini';
       }
     }
+
+    function applyPrayerTimes(list) {
+      if (!Array.isArray(list) || list.length !== 5) return;
+      for (let i = 0; i < 5; i++) {
+        PRAYER_SCHEDULE[i].hour = list[i].hour;
+        PRAYER_SCHEDULE[i].minute = list[i].minute;
+      }
+      updatePrayerRow(new Date());
+    }
+
+    async function fetchKemenagPrayers() {
+      const today = new Date();
+      const dateKey = `kemenag_prayers_${today.getFullYear()}_${today.getMonth() + 1}_${today.getDate()}`;
+      try {
+        const cached = localStorage.getItem(dateKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length === 5) {
+            applyPrayerTimes(parsed);
+            return;
+          }
+        }
+        const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Tangerang%20Selatan&country=Indonesia&method=20');
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json && json.data && json.data.timings) {
+          const t = json.data.timings;
+          function parseWithIkhtiyat(timeStr, ikhtiyat) {
+            const parts = timeStr.split(':');
+            let h = parseInt(parts[0], 10);
+            let m = parseInt(parts[1], 10) + ikhtiyat;
+            if (m >= 60) {
+              h += Math.floor(m / 60);
+              m = m % 60;
+            }
+            return { hour: h, minute: m };
+          }
+          const subuh = parseWithIkhtiyat(t.Fajr, 2);
+          const dzuhur = parseWithIkhtiyat(t.Dhuhr, 2);
+          const ashar = parseWithIkhtiyat(t.Asr, 2);
+          const maghrib = parseWithIkhtiyat(t.Maghrib, 2);
+          const isya = parseWithIkhtiyat(t.Isha, 2);
+
+          const updated = [
+            { name: 'Subuh', hour: subuh.hour, minute: subuh.minute },
+            { name: 'Dzuhur', hour: dzuhur.hour, minute: dzuhur.minute },
+            { name: 'Ashar', hour: ashar.hour, minute: ashar.minute },
+            { name: 'Maghrib', hour: maghrib.hour, minute: maghrib.minute },
+            { name: 'Isya', hour: isya.hour, minute: isya.minute }
+          ];
+          localStorage.setItem(dateKey, JSON.stringify(updated));
+          applyPrayerTimes(updated);
+        }
+      } catch (err) {
+      }
+    }
+    fetchKemenagPrayers();
+    setInterval(fetchKemenagPrayers, 3600000);
 
     const actors = ['actor-cat', 'actor-penguin', 'actor-bunny', 'actor-hamster'];
     let currentActorIdx = 0;
