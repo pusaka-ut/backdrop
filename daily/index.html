@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Perpustakaan Universitas Terbuka — Display Harian</title>
   <style>
     *, *::before, *::after {
@@ -270,16 +273,6 @@
       color: #03456e;
     }
 
-    .prayer-source-note {
-      font-size: 0.67rem;
-      font-weight: 700;
-      color: #0284c7;
-      text-align: right;
-      letter-spacing: 0.3px;
-      margin-top: 4px;
-      opacity: 0.85;
-    }
-
     .col-center-wrap {
       display: flex;
       flex-direction: column;
@@ -289,19 +282,97 @@
     }
 
     .theater-stage-compact {
-      height: 120px;
+      height: 125px;
       flex-shrink: 0;
       position: relative;
       border-radius: 26px;
       background: linear-gradient(180deg, #dcf3ff 0%, #bce7fd 60%, #bae6fd 100%);
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 8px 16px;
       overflow: hidden;
       box-shadow:
         inset 4px 4px 12px rgba(2, 132, 199, 0.15),
         inset -4px -4px 12px rgba(255, 255, 255, 0.85);
+    }
+
+    .weather-theater-card {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 18px;
+      padding: 8px 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow:
+        4px 4px 12px rgba(14, 165, 233, 0.12),
+        -2px -2px 6px rgba(255, 255, 255, 0.85);
+      flex-shrink: 0;
+    }
+
+    .weather-main-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .weather-icon-badge {
+      font-size: 1.85rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.2));
+      animation: weatherFloat 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes weatherFloat {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-3px) scale(1.06); }
+    }
+
+    .weather-temp-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-temp-num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #03456e;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    .weather-condition-txt {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #0284c7;
+      white-space: nowrap;
+    }
+
+    .weather-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .weather-chip {
+      font-size: 0.67rem;
+      font-weight: 700;
+      color: #0369a1;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 2px 7px;
+      border-radius: 8px;
+      box-shadow: 1px 1px 3px rgba(14, 165, 233, 0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
     }
 
     .cloud-soft {
@@ -336,8 +407,8 @@
 
     .butterfly-wrap {
       position: absolute;
-      top: 30%;
-      left: 60%;
+      top: 25%;
+      left: 75%;
       animation: butterflyFlight 6s ease-in-out infinite alternate;
       z-index: 15;
     }
@@ -351,11 +422,12 @@
 
     .stage-animal-mount {
       position: relative;
-      width: 100%;
+      flex: 1;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 10;
     }
 
     .animal-actor {
@@ -366,13 +438,13 @@
       justify-content: center;
       transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       opacity: 0;
-      transform: scale(0.7) translateY(15px);
+      transform: scale(0.65) translateY(12px);
       pointer-events: none;
     }
 
     .animal-actor.active {
       opacity: 1;
-      transform: scale(1) translateY(0);
+      transform: scale(0.85) translateY(0);
       pointer-events: auto;
     }
 
@@ -832,7 +904,6 @@
             <div class="next-prayer-pill" id="next-prayer-pill">Menuju Dzuhur</div>
           </div>
           <div class="prayer-list" id="prayer-list"></div>
-          <div class="prayer-source-note">Kemenag RI · Tangsel</div>
         </div>
       </div>
 
@@ -846,6 +917,21 @@
             <svg width="24" height="24" viewBox="0 0 24 24">
               <path d="M12,4C11.5,2 9,2 7,3.5C5,5 5,8 7,10C9,12 12,13 12,13C12,13 15,12 17,10C19,8 19,5 17,3.5C15,2 12.5,2 12,4M12,14C11,15 9,17 7,18C5,19 6,21 8,21C10,21 11.5,19 12,18C12.5,19 14,21 16,21C18,21 19,19 17,18C15,17 13,15 12,14Z" fill="#38bdf8"/>
             </svg>
+          </div>
+
+          <div class="weather-theater-card" id="weather-card">
+            <div class="weather-main-row">
+              <span class="weather-icon-badge" id="weather-icon">⛅</span>
+              <div class="weather-temp-wrap">
+                <div class="weather-temp-num"><span id="weather-temp">31</span>°C</div>
+                <div class="weather-condition-txt" id="weather-condition">Cerah Berawan</div>
+              </div>
+            </div>
+            <div class="weather-meta-row">
+              <span class="weather-chip" id="weather-loc">📍 Pondok Cabe</span>
+              <span class="weather-chip" id="weather-humidity">💧 65%</span>
+              <span class="weather-chip" id="weather-wind">💨 11 km/j</span>
+            </div>
           </div>
 
           <div class="stage-animal-mount">
@@ -1213,6 +1299,86 @@
     fetchKemenagPrayers();
     setInterval(fetchKemenagPrayers, 3600000);
 
+    function getBmkgIcon(desc) {
+      if (!desc) return '⛅';
+      const d = desc.toLowerCase();
+      if (d.includes('petir')) return '⛈️';
+      if (d.includes('lebat') || d.includes('sedang')) return '🌧️';
+      if (d.includes('hujan')) return '🌦️';
+      if (d.includes('cerah berawan')) return '🌤️';
+      if (d.includes('cerah')) return '☀️';
+      if (d.includes('tebal') || d.includes('mendung')) return '☁️';
+      if (d.includes('berawan')) return '⛅';
+      if (d.includes('kabut') || d.includes('asap')) return '🌫️';
+      return '⛅';
+    }
+
+    function applyWeather(w) {
+      const tempEl = document.getElementById('weather-temp');
+      const condEl = document.getElementById('weather-condition');
+      const iconEl = document.getElementById('weather-icon');
+      const humEl = document.getElementById('weather-humidity');
+      const windEl = document.getElementById('weather-wind');
+      if (tempEl) tempEl.textContent = Math.round(w.temp);
+      if (condEl) condEl.textContent = w.condition;
+      if (iconEl) iconEl.textContent = w.icon;
+      if (humEl) humEl.textContent = `💧 ${Math.round(w.humidity)}%`;
+      if (windEl) windEl.textContent = `💨 ${Math.round(w.windSpeed)} km/j`;
+    }
+
+    async function fetchWeatherTangsel() {
+      const dateKey = 'bmkg_weather_tangsel_cache';
+      try {
+        const cached = localStorage.getItem(dateKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && (Date.now() - parsed.timestamp < 30 * 60 * 1000)) {
+            applyWeather(parsed.data);
+            return;
+          }
+        }
+        const res = await fetch('https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=36.74.06.1004');
+        if (!res.ok) throw new Error('BMKG fetch failed');
+        const json = await res.json();
+        if (json && json.data && json.data[0] && Array.isArray(json.data[0].cuaca)) {
+          const allForecasts = json.data[0].cuaca.flat();
+          const now = new Date();
+          let closest = allForecasts[0];
+          let minDiff = Infinity;
+          for (const item of allForecasts) {
+            const itemDate = new Date(item.datetime || (item.local_datetime ? item.local_datetime.replace(' ', 'T') + '+07:00' : ''));
+            const diff = Math.abs(itemDate - now);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closest = item;
+            }
+          }
+          if (closest) {
+            const data = {
+              temp: closest.t,
+              humidity: closest.hu,
+              windSpeed: closest.ws,
+              condition: closest.weather_desc,
+              icon: getBmkgIcon(closest.weather_desc)
+            };
+            localStorage.setItem(dateKey, JSON.stringify({ timestamp: Date.now(), data }));
+            applyWeather(data);
+            return;
+          }
+        }
+      } catch (err) {
+      }
+      if (typeof DEFAULT_WEATHER !== 'undefined') {
+        applyWeather(DEFAULT_WEATHER);
+      }
+    }
+
+    if (typeof DEFAULT_WEATHER !== 'undefined') {
+      applyWeather(DEFAULT_WEATHER);
+    }
+    fetchWeatherTangsel();
+    setInterval(fetchWeatherTangsel, 30 * 60 * 1000);
+
     const actors = ['actor-cat', 'actor-penguin', 'actor-bunny', 'actor-hamster'];
     let currentActorIdx = 0;
 
@@ -1408,6 +1574,25 @@
         speakRandomStaff();
       }
     });
+
+    const initialDay = new Date().getDate();
+    const REFRESH_INTERVAL_MS = 20 * 60 * 1000;
+
+    function safeAutoReload() {
+      if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        setTimeout(safeAutoReload, 5000);
+        return;
+      }
+      window.location.reload();
+    }
+
+    setInterval(safeAutoReload, REFRESH_INTERVAL_MS);
+
+    setInterval(function() {
+      if (new Date().getDate() !== initialDay) {
+        safeAutoReload();
+      }
+    }, 60 * 1000);
 
   })();
   </script>

@@ -253,4 +253,14 @@ const SPEECH_MESSAGES = [
 
 const DAILY_NOTICES = [];
 
+const DEFAULT_WEATHER = {
+  temp: 28,
+  condition: 'Cerah Berawan',
+  icon: '🌤️',
+  humidity: 74,
+  windSpeed: 9,
+  location: 'Pondok Cabe'
+};
+
+
 
