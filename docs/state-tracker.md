@@ -13,12 +13,13 @@ File ini digunakan untuk melacak status fitur dan modul di repositori backdrop P
 - [x] Dual-Engine Audio TV: Pemutar audio stream MP3 via Google TTS (kompatibel penuh Smart TV) + Audio Gesture Unlocker
 - [x] Tri-Guard TV Keep-Alive: Screen Wake Lock API + Hardware Video Stream Loop (`canvas.captureStream`) untuk mencegah TV sleep / standby otomatis
 - [x] 3 Variasi narasi per staf untuk 18 staf resmi (Jobdesk, Humor Karakter, Motivasi Membara)
-- [x] Pembersihan total teks header atas dan running text, hanya tersisa 2 tombol ikon semi-transparan (Mic & Fullscreen)
+- [x] Pembersihan total teks header atas dan running text, hanya tersisa tombol kontrol semi-transparan (Theme, Mic, Fullscreen)
+- [x] Sistem 4 Tema Warna Waktu Alami (Pagi 🌅, Siang ☀️, Sore 🌇, Malam 🌙) otomatis sesuai jam lokal & tombol switcher manual (`#btn-theme` / shortcut `T`)
 - [x] Tautkan modul `daily/` ke menu portal root `index.html`
 
 ## 2. Modul & Fitur Selesai (Completed)
 - [x] Portal Menu Utama (`index.html`)
-- [x] Modul Display Harian (`daily/` — Claymorphism Light Cyan, Foto Staf, Info Hari Ini, Mystery Vault, TV Audio Stream, TV Anti-Sleep Keep-Alive)
+- [x] Modul Display Harian (`daily/` — Claymorphism Adaptive Themes, Foto Staf, Info Hari Ini, Mystery Vault, TV Audio Stream, TV Anti-Sleep Keep-Alive)
 - [x] Modul Workshop Akreditasi 2027 (`Workshop-29092026/` — Player Animasi Maskot Interaktif)
 - [x] Modul Galeri PTJJ 2026 (`Galeri PTJJ 2026/SISORA/` & `RBV New Reborn/` — Video kompresi under 100MB)
 - [x] Generator Video Otomatis (`generate_backdrop_video.py`)

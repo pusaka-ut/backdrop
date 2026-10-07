@@ -16,13 +16,99 @@
       -webkit-user-select: none;
     }
 
+    :root {
+      --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #e0f7fe 100%);
+      --text-main: #03456e;
+      --text-muted: #075985;
+      --text-accent: #0284c7;
+      --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      --card-shadow: 16px 16px 36px rgba(14, 165, 233, 0.14), -12px -12px 30px rgba(255, 255, 255, 0.9);
+      --card-border: rgba(255, 255, 255, 0.8);
+      --stage-bg: linear-gradient(180deg, #dcf3ff 0%, #bce7fd 60%, #bae6fd 100%);
+      --item-bg: linear-gradient(145deg, #ffffff, #f0f9ff);
+      --item-shadow: 3px 3px 8px rgba(14, 165, 233, 0.08), -2px -2px 6px rgba(255, 255, 255, 0.85);
+      --primary-pill: linear-gradient(135deg, #0284c7, #0ea5e9);
+      --clock-digits: #03456e;
+      --colon-color: #0ea5e9;
+      --weather-bg: rgba(255, 255, 255, 0.75);
+    }
+
+    body.theme-morning {
+      --bg-gradient: linear-gradient(135deg, #fef3c7 0%, #e0f2fe 50%, #fef9c3 100%);
+      --text-main: #1e3a5f;
+      --text-muted: #0369a1;
+      --text-accent: #d97706;
+      --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(254, 249, 231, 0.92));
+      --card-shadow: 16px 16px 36px rgba(217, 119, 6, 0.13), -12px -12px 30px rgba(255, 255, 255, 0.92);
+      --card-border: rgba(255, 255, 255, 0.85);
+      --stage-bg: linear-gradient(180deg, #fef3c7 0%, #fde68a 60%, #bae6fd 100%);
+      --item-bg: linear-gradient(145deg, #ffffff, #fef9c3);
+      --item-shadow: 3px 3px 8px rgba(217, 119, 6, 0.08), -2px -2px 6px rgba(255, 255, 255, 0.85);
+      --primary-pill: linear-gradient(135deg, #f59e0b, #d97706);
+      --clock-digits: #1e3a5f;
+      --colon-color: #f59e0b;
+      --weather-bg: rgba(255, 255, 255, 0.8);
+    }
+
+    body.theme-day {
+      --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #e0f7fe 100%);
+      --text-main: #03456e;
+      --text-muted: #075985;
+      --text-accent: #0284c7;
+      --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      --card-shadow: 16px 16px 36px rgba(14, 165, 233, 0.14), -12px -12px 30px rgba(255, 255, 255, 0.9);
+      --card-border: rgba(255, 255, 255, 0.8);
+      --stage-bg: linear-gradient(180deg, #dcf3ff 0%, #bce7fd 60%, #bae6fd 100%);
+      --item-bg: linear-gradient(145deg, #ffffff, #f0f9ff);
+      --item-shadow: 3px 3px 8px rgba(14, 165, 233, 0.08), -2px -2px 6px rgba(255, 255, 255, 0.85);
+      --primary-pill: linear-gradient(135deg, #0284c7, #0ea5e9);
+      --clock-digits: #03456e;
+      --colon-color: #0ea5e9;
+      --weather-bg: rgba(255, 255, 255, 0.75);
+    }
+
+    body.theme-afternoon {
+      --bg-gradient: linear-gradient(135deg, #ffedd5 0%, #fed7aa 45%, #fecdd3 100%);
+      --text-main: #431407;
+      --text-muted: #7c2d12;
+      --text-accent: #ea580c;
+      --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 241, 230, 0.92));
+      --card-shadow: 16px 16px 36px rgba(234, 88, 12, 0.15), -12px -12px 30px rgba(255, 255, 255, 0.9);
+      --card-border: rgba(255, 255, 255, 0.85);
+      --stage-bg: linear-gradient(180deg, #fed7aa 0%, #fdba74 60%, #f472b6 100%);
+      --item-bg: linear-gradient(145deg, #ffffff, #fff7ed);
+      --item-shadow: 3px 3px 8px rgba(234, 88, 12, 0.08), -2px -2px 6px rgba(255, 255, 255, 0.85);
+      --primary-pill: linear-gradient(135deg, #ea580c, #f97316);
+      --clock-digits: #431407;
+      --colon-color: #ea580c;
+      --weather-bg: rgba(255, 255, 255, 0.82);
+    }
+
+    body.theme-night {
+      --bg-gradient: linear-gradient(135deg, #0b1329 0%, #111d38 50%, #0c1938 100%);
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+      --text-accent: #38bdf8;
+      --card-bg: linear-gradient(145deg, rgba(23, 37, 71, 0.94), rgba(15, 23, 42, 0.9));
+      --card-shadow: 16px 16px 36px rgba(0, 0, 0, 0.55), -10px -10px 25px rgba(30, 41, 59, 0.45);
+      --card-border: rgba(56, 189, 248, 0.2);
+      --stage-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #0284c7 100%);
+      --item-bg: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+      --item-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35), -2px -2px 6px rgba(51, 65, 85, 0.5);
+      --primary-pill: linear-gradient(135deg, #0284c7, #38bdf8);
+      --clock-digits: #f8fafc;
+      --colon-color: #38bdf8;
+      --weather-bg: rgba(15, 23, 42, 0.8);
+    }
+
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #e0f7fe 100%);
+      background: var(--bg-gradient);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Plus Jakarta Sans', sans-serif;
-      color: #03456e;
+      color: var(--text-main);
+      transition: background 0.8s ease, color 0.5s ease;
     }
 
     .clay-bg-canvas {
@@ -91,18 +177,19 @@
     }
 
     .clay-card {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      background: var(--card-bg);
       border-radius: 28px;
       padding: 22px;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
+      border: 1px solid var(--card-border);
       box-shadow:
-        16px 16px 36px rgba(14, 165, 233, 0.14),
-        -12px -12px 30px rgba(255, 255, 255, 0.9),
-        inset 3px 3px 6px rgba(255, 255, 255, 0.9),
+        var(--card-shadow),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.3),
         inset -3px -3px 8px rgba(14, 165, 233, 0.06);
+      transition: background 0.8s ease, box-shadow 0.8s ease, border 0.5s ease;
     }
 
     .col-stack {
@@ -127,13 +214,15 @@
       letter-spacing: -2px;
       line-height: 1;
       font-variant-numeric: tabular-nums;
-      color: #03456e;
-      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8), -2px -2px 4px rgba(14, 165, 233, 0.15);
+      color: var(--clock-digits);
+      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3), -2px -2px 4px rgba(14, 165, 233, 0.15);
+      transition: color 0.5s ease;
     }
 
     .clay-digits .colon {
-      color: #0ea5e9;
+      color: var(--colon-color);
       animation: blinkSoft 1s infinite;
+      transition: color 0.5s ease;
     }
 
     @keyframes blinkSoft {
@@ -144,21 +233,21 @@
     .clay-sec {
       font-size: 1.9rem;
       font-weight: 500;
-      color: #0284c7;
+      color: var(--text-accent);
       margin-left: 4px;
+      transition: color 0.5s ease;
     }
 
     .clay-date {
       margin-top: 12px;
       font-size: 1.05rem;
       font-weight: 700;
-      color: #0284c7;
-      background: linear-gradient(145deg, #ffffff, #e0f2fe);
+      color: var(--text-accent);
+      background: var(--item-bg);
       padding: 6px 18px;
       border-radius: 20px;
-      box-shadow:
-        4px 4px 10px rgba(14, 165, 233, 0.12),
-        -3px -3px 8px rgba(255, 255, 255, 0.8);
+      box-shadow: var(--item-shadow);
+      transition: all 0.5s ease;
     }
 
     .clay-schedule-card {
@@ -183,23 +272,25 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      color: #0369a1;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 6px;
       white-space: nowrap;
+      transition: color 0.5s ease;
     }
 
     .next-prayer-pill {
       font-size: 0.72rem;
       font-weight: 800;
       color: #ffffff;
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      background: var(--primary-pill);
       padding: 3px 10px;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
       white-space: nowrap;
       flex-shrink: 0;
+      transition: background 0.5s ease;
     }
 
     .prayer-list {
@@ -215,12 +306,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 6px 14px;
-      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+      background: var(--item-bg);
       border-radius: 14px;
-      box-shadow:
-        3px 3px 8px rgba(14, 165, 233, 0.08),
-        -2px -2px 6px rgba(255, 255, 255, 0.85),
-        inset 1px 1px 2px rgba(255, 255, 255, 0.8);
+      box-shadow: var(--item-shadow);
       transition: all 0.3s ease;
     }
 
@@ -243,34 +331,37 @@
       width: 28px;
       height: 28px;
       border-radius: 9px;
-      background: linear-gradient(145deg, #ffffff, #e0f2fe);
+      background: var(--item-bg);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 0.9rem;
       box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.8);
+      transition: background 0.5s ease;
     }
 
     .prayer-name-txt {
       font-size: 0.88rem;
       font-weight: 700;
-      color: #03456e;
+      color: var(--text-main);
+      transition: color 0.5s ease;
     }
 
     .prayer-row-item.active .prayer-name-txt {
-      color: #0284c7;
+      color: var(--text-accent);
       font-weight: 800;
     }
 
     .prayer-time-txt {
       font-size: 1rem;
       font-weight: 800;
-      color: #0284c7;
+      color: var(--text-accent);
       font-variant-numeric: tabular-nums;
+      transition: color 0.5s ease;
     }
 
     .prayer-row-item.active .prayer-time-txt {
-      color: #03456e;
+      color: var(--text-main);
     }
 
     .col-center-wrap {
@@ -286,7 +377,7 @@
       flex-shrink: 0;
       position: relative;
       border-radius: 26px;
-      background: linear-gradient(180deg, #dcf3ff 0%, #bce7fd 60%, #bae6fd 100%);
+      background: var(--stage-bg);
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -296,6 +387,7 @@
       box-shadow:
         inset 4px 4px 12px rgba(2, 132, 199, 0.15),
         inset -4px -4px 12px rgba(255, 255, 255, 0.85);
+      transition: background 0.8s ease;
     }
 
     .weather-theater-card {
@@ -305,16 +397,17 @@
       flex-direction: column;
       justify-content: center;
       gap: 5px;
-      background: rgba(255, 255, 255, 0.75);
+      background: var(--weather-bg);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border-radius: 18px;
       padding: 8px 14px;
-      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--card-border);
       box-shadow:
         4px 4px 12px rgba(14, 165, 233, 0.12),
         -2px -2px 6px rgba(255, 255, 255, 0.85);
       flex-shrink: 0;
+      transition: background 0.8s ease, border 0.5s ease;
     }
 
     .weather-main-row {
@@ -343,16 +436,18 @@
     .weather-temp-num {
       font-size: 1.5rem;
       font-weight: 900;
-      color: #03456e;
+      color: var(--text-main);
       line-height: 1.1;
       letter-spacing: -0.5px;
+      transition: color 0.5s ease;
     }
 
     .weather-condition-txt {
       font-size: 0.76rem;
       font-weight: 800;
-      color: #0284c7;
+      color: var(--text-accent);
       white-space: nowrap;
+      transition: color 0.5s ease;
     }
 
     .weather-meta-row {
@@ -364,15 +459,16 @@
     .weather-chip {
       font-size: 0.67rem;
       font-weight: 700;
-      color: #0369a1;
-      background: rgba(255, 255, 255, 0.85);
+      color: var(--text-muted);
+      background: var(--item-bg);
       padding: 2px 7px;
       border-radius: 8px;
-      box-shadow: 1px 1px 3px rgba(14, 165, 233, 0.08);
+      box-shadow: var(--item-shadow);
       display: inline-flex;
       align-items: center;
       gap: 3px;
       white-space: nowrap;
+      transition: all 0.5s ease;
     }
 
     .cloud-soft {
@@ -497,18 +593,18 @@
     .clay-staff-spotlight-card {
       flex: 1.1;
       min-height: 0;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      background: var(--card-bg);
       border-radius: 24px;
       padding: 18px 22px;
       display: flex;
       gap: 20px;
       align-items: center;
+      border: 1px solid var(--card-border);
       box-shadow:
-        16px 16px 36px rgba(14, 165, 233, 0.14),
-        -12px -12px 30px rgba(255, 255, 255, 0.9),
-        inset 3px 3px 6px rgba(255, 255, 255, 0.9),
+        var(--card-shadow),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.3),
         inset -3px -3px 8px rgba(14, 165, 233, 0.06);
-      transition: all 0.4s ease;
+      transition: all 0.8s ease;
     }
 
     .staff-photo-frame {
@@ -557,7 +653,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      background: var(--primary-pill);
       color: #ffffff;
       padding: 5px 14px;
       border-radius: 20px;
@@ -565,64 +661,65 @@
       font-weight: 800;
       letter-spacing: 0.4px;
       box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+      transition: background 0.5s ease;
     }
 
     .staff-tag-mini {
       font-size: 0.72rem;
       font-weight: 700;
-      color: #0284c7;
+      color: var(--text-accent);
       text-transform: uppercase;
       letter-spacing: 0.8px;
+      transition: color 0.5s ease;
     }
 
     .staff-full-name {
       font-size: 1.25rem;
       font-weight: 800;
-      color: #03456e;
+      color: var(--text-main);
       line-height: 1.3;
       margin-top: 2px;
+      transition: color 0.5s ease;
     }
 
     .staff-role-txt {
       font-size: 0.82rem;
       font-weight: 700;
-      color: #0284c7;
+      color: var(--text-accent);
       margin-bottom: 8px;
+      transition: color 0.5s ease;
     }
 
     .staff-quote-bubble {
-      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+      background: var(--item-bg);
       border-radius: 18px;
       padding: 14px 18px;
       font-size: 0.95rem;
       line-height: 1.5;
-      color: #03456e;
+      color: var(--text-main);
       font-style: italic;
       font-weight: 500;
-      border-left: 4px solid #0ea5e9;
-      box-shadow:
-        4px 4px 12px rgba(14, 165, 233, 0.08),
-        -3px -3px 8px rgba(255, 255, 255, 0.85),
-        inset 1px 1px 3px rgba(255, 255, 255, 0.9);
-      transition: opacity 0.4s ease;
+      border-left: 4px solid var(--text-accent);
+      box-shadow: var(--item-shadow);
+      transition: opacity 0.4s ease, background 0.5s ease, color 0.5s ease, border 0.5s ease;
     }
 
     .clay-notice-card {
       flex: 1;
       min-height: 0;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.88));
+      background: var(--card-bg);
       border-radius: 24px;
       padding: 18px 22px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--text-accent);
       box-shadow:
-        12px 12px 28px rgba(14, 165, 233, 0.12),
-        -8px -8px 22px rgba(255, 255, 255, 0.9),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+        var(--card-shadow),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.3),
         inset -2px -2px 4px rgba(14, 165, 233, 0.05);
-      border-left: 4px solid #0284c7;
-      transition: all 0.4s ease;
+      transition: all 0.8s ease;
     }
 
     .notice-top-row {
@@ -636,21 +733,23 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      background: var(--primary-pill);
       color: #ffffff;
       padding: 4px 12px;
       border-radius: 14px;
       font-size: 0.74rem;
       font-weight: 800;
       letter-spacing: 0.4px;
+      transition: background 0.5s ease;
     }
 
     .notice-source {
       font-size: 0.72rem;
       font-weight: 700;
-      color: #0284c7;
+      color: var(--text-accent);
       text-transform: uppercase;
       letter-spacing: 0.6px;
+      transition: color 0.5s ease;
     }
 
     .notice-content-body {
@@ -662,14 +761,16 @@
     .notice-title {
       font-size: 1.05rem;
       font-weight: 800;
-      color: #03456e;
+      color: var(--text-main);
+      transition: color 0.5s ease;
     }
 
     .notice-desc {
       font-size: 0.88rem;
       line-height: 1.55;
-      color: #075985;
+      color: var(--text-muted);
       font-weight: 500;
+      transition: color 0.5s ease;
     }
 
     .notice-footer-pills {
@@ -682,11 +783,12 @@
     .notice-mini-tag {
       font-size: 0.72rem;
       font-weight: 700;
-      color: #0284c7;
-      background: rgba(14, 165, 233, 0.1);
+      color: var(--text-accent);
+      background: var(--item-bg);
       padding: 3px 10px;
       border-radius: 12px;
-      border: 1px solid rgba(14, 165, 233, 0.18);
+      border: 1px solid var(--card-border);
+      transition: all 0.5s ease;
     }
 
     .clay-riddle-card {
@@ -708,7 +810,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #0ea5e9;
+      background: var(--text-accent);
       color: #ffffff;
       padding: 4px 12px;
       border-radius: 20px;
@@ -716,36 +818,40 @@
       font-weight: 800;
       letter-spacing: 0.5px;
       box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
+      transition: background 0.5s ease;
     }
 
     .riddle-status-badge {
       font-size: 0.72rem;
       font-weight: 800;
-      color: #0284c7;
-      background: rgba(14, 165, 233, 0.12);
+      color: var(--text-accent);
+      background: var(--item-bg);
       padding: 3px 10px;
       border-radius: 12px;
-      border: 1px solid rgba(14, 165, 233, 0.25);
+      border: 1px solid var(--card-border);
+      transition: all 0.5s ease;
     }
 
     .riddle-question {
       font-size: 1.02rem;
       font-weight: 800;
-      color: #03456e;
+      color: var(--text-main);
       line-height: 1.45;
       margin-bottom: 8px;
       min-height: 52px;
+      transition: color 0.5s ease;
     }
 
     .riddle-hint-box {
-      background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+      background: var(--item-bg);
       border-radius: 12px;
       padding: 7px 12px;
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 10px;
-      border-left: 3px solid #38bdf8;
+      border-left: 3px solid var(--text-accent);
+      transition: all 0.5s ease;
     }
 
     .riddle-hint-icon {
@@ -755,22 +861,21 @@
     .riddle-hint-txt {
       font-size: 0.8rem;
       font-weight: 600;
-      color: #0369a1;
+      color: var(--text-muted);
       font-style: italic;
+      transition: color 0.5s ease;
     }
 
     .riddle-answer-vault {
-      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+      background: var(--item-bg);
       border-radius: 16px;
       padding: 12px 16px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       min-height: 56px;
-      box-shadow:
-        inset 2px 2px 4px rgba(255, 255, 255, 0.9),
-        inset -2px -2px 4px rgba(14, 165, 233, 0.08);
-      border: 1.5px dashed rgba(14, 165, 233, 0.35);
+      box-shadow: var(--item-shadow);
+      border: 1.5px dashed var(--text-accent);
       transition: all 0.35s ease;
     }
 
@@ -816,14 +921,16 @@
     .vault-reveal-label {
       font-size: 0.68rem;
       font-weight: 800;
-      color: #0284c7;
+      color: var(--text-accent);
       letter-spacing: 0.6px;
+      transition: color 0.5s ease;
     }
 
     .vault-reveal-text {
       font-size: 1.05rem;
       font-weight: 800;
-      color: #03456e;
+      color: var(--text-main);
+      transition: color 0.5s ease;
     }
 
     .riddle-timer-bar {
@@ -837,10 +944,10 @@
 
     .riddle-timer-fill {
       height: 100%;
-      background: #0ea5e9;
+      background: var(--text-accent);
       width: 100%;
       border-radius: 2px;
-      transition: width 1s linear;
+      transition: width 1s linear, background 0.5s ease;
     }
 
     .clay-curiosity-card {
@@ -853,16 +960,17 @@
     .curiosity-title {
       font-size: 1.05rem;
       font-weight: 800;
-      color: #03456e;
+      color: var(--text-main);
       margin-bottom: 6px;
+      transition: color 0.5s ease;
     }
 
     .curiosity-text {
       font-size: 0.9rem;
       line-height: 1.52;
-      color: #0369a1;
+      color: var(--text-muted);
       font-weight: 500;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.4s ease, color 0.5s ease;
     }
 
     .tv-audio-toast {
@@ -914,6 +1022,9 @@
   <div class="tv-audio-toast" id="tv-audio-toast">🔊 Tekan OK Remote / Ketuk Layar untuk Mengaktifkan Suara TV</div>
 
   <div class="floating-top-controls">
+    <button class="clay-icon-btn" id="btn-theme" title="Ganti Tema Warna">
+      <span id="theme-btn-icon" style="font-size: 1.15rem; line-height: 1;">☀️</span>
+    </button>
     <button class="clay-icon-btn" id="btn-mic" title="Sapa Staf (Manual Speech)">
       <svg viewBox="0 0 24 24" width="20" height="20">
         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
@@ -1092,7 +1203,7 @@
 
         <div class="clay-staff-spotlight-card" id="staff-spotlight-card">
           <div class="staff-photo-frame">
-            <img src="./foto-staff/pak kani.webp" alt="Foto Staf" class="staff-photo-img" id="staff-img">
+            <img src="./foto-staff/pak kani.webp?v=20261007_v2" alt="Foto Staf" class="staff-photo-img" id="staff-img">
           </div>
           <div class="staff-content-right">
             <div class="staff-badge-row">
@@ -1159,7 +1270,7 @@
 
   </div>
 
-  <script src="./data.js"></script>
+  <script src="./data.js?v=20261007_v2"></script>
   <script>
   (function() {
     const canvas = document.getElementById('ambient-canvas');
@@ -1464,7 +1575,7 @@
       quoteEl.style.opacity = '0';
 
       setTimeout(() => {
-        imgEl.src = s.photo;
+        imgEl.src = s.photo + '?v=20261007_v2';
         nickEl.textContent = s.nick;
         nameEl.textContent = s.name;
         roleEl.textContent = s.role;
@@ -1775,10 +1886,71 @@
 
     setInterval(speakRandomStaff, 30 * 60 * 1000);
 
+    const THEMES = [
+      { id: 'auto', name: 'Otomatis', icon: '⏱️' },
+      { id: 'morning', name: 'Pagi 🌅', icon: '🌅' },
+      { id: 'day', name: 'Siang ☀️', icon: '☀️' },
+      { id: 'afternoon', name: 'Sore 🌇', icon: '🌇' },
+      { id: 'night', name: 'Malam 🌙', icon: '🌙' }
+    ];
+
+    function getAutoThemeId() {
+      const h = new Date().getHours();
+      const m = new Date().getMinutes();
+      if (h >= 5 && h < 11) return 'morning';
+      if (h >= 11 && h < 15) return 'day';
+      if (h >= 15 && (h < 18 || (h === 18 && m < 30))) return 'afternoon';
+      return 'night';
+    }
+
+    let currentThemeMode = localStorage.getItem('backdrop_theme_mode') || 'auto';
+
+    function applyTheme(mode) {
+      currentThemeMode = mode;
+      localStorage.setItem('backdrop_theme_mode', mode);
+      const activeTheme = mode === 'auto' ? getAutoThemeId() : mode;
+
+      document.body.classList.remove('theme-morning', 'theme-day', 'theme-afternoon', 'theme-night');
+      document.body.classList.add(`theme-${activeTheme}`);
+
+      const themeIconEl = document.getElementById('theme-btn-icon');
+      const themeBtn = document.getElementById('btn-theme');
+      const currentConfig = THEMES.find(t => t.id === mode) || THEMES[0];
+      if (themeIconEl) {
+        themeIconEl.textContent = currentConfig.icon;
+      }
+      if (themeBtn) {
+        themeBtn.title = `Tema: ${currentConfig.name} (Klik untuk ganti / Shortcut T)`;
+      }
+    }
+
+    function cycleTheme() {
+      const idx = THEMES.findIndex(t => t.id === currentThemeMode);
+      const nextIdx = (idx + 1) % THEMES.length;
+      applyTheme(THEMES[nextIdx].id);
+    }
+
+    const btnTheme = document.getElementById('btn-theme');
+    if (btnTheme) {
+      btnTheme.addEventListener('click', cycleTheme);
+    }
+
+    setInterval(function() {
+      if (currentThemeMode === 'auto') {
+        applyTheme('auto');
+      }
+    }, 60 * 1000);
+
+    applyTheme(currentThemeMode);
+
     document.addEventListener('keydown', function(e) {
       if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
         e.preventDefault();
         toggleFullscreen();
+      }
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        cycleTheme();
       }
       if (e.key === 'm' || e.key === 'M' || e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
