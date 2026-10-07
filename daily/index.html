@@ -1827,8 +1827,17 @@
       }
 
       let chunkIdx = 0;
+      let watchdogTimer = null;
+
+      function clearWatchdog() {
+        if (watchdogTimer) {
+          clearTimeout(watchdogTimer);
+          watchdogTimer = null;
+        }
+      }
 
       function fallbackSpeechSynthesis() {
+        clearWatchdog();
         if (!('speechSynthesis' in window)) {
           if (onComplete) onComplete();
           return;
@@ -1856,6 +1865,7 @@
       }
 
       function playNextChunk() {
+        clearWatchdog();
         if (chunkIdx >= chunks.length) {
           currentAudioEl = null;
           if (onComplete) onComplete();
@@ -1875,35 +1885,58 @@
 
         let hasHandledEnd = false;
         function finishChunk() {
+          clearWatchdog();
+          audio.onended = null;
+          audio.onerror = null;
           if (hasHandledEnd) return;
           hasHandledEnd = true;
           playNextChunk();
         }
 
-        audio.onended = finishChunk;
-
-        audio.onerror = function() {
+        function tryMirrorOrFallback() {
+          clearWatchdog();
+          audio.onended = null;
+          audio.onerror = null;
           if (audio.src !== ttsUrlMirror) {
-            audio.src = ttsUrlMirror;
-            audio.play().catch(function() {
+            watchdogTimer = setTimeout(function() {
               currentAudioEl = null;
               fallbackSpeechSynthesis();
-            });
+            }, 12000);
+            audio.onended = finishChunk;
+            audio.onerror = function() {
+              clearWatchdog();
+              currentAudioEl = null;
+              fallbackSpeechSynthesis();
+            };
+            audio.src = ttsUrlMirror;
+            audio.load();
+            const mirrorPromise = audio.play();
+            if (mirrorPromise !== undefined) {
+              mirrorPromise.catch(function() {
+                clearWatchdog();
+                currentAudioEl = null;
+                fallbackSpeechSynthesis();
+              });
+            }
           } else {
             currentAudioEl = null;
             fallbackSpeechSynthesis();
           }
-        };
+        }
+
+        audio.onended = finishChunk;
+        audio.onerror = tryMirrorOrFallback;
+
+        watchdogTimer = setTimeout(function() {
+          tryMirrorOrFallback();
+        }, 12000);
 
         audio.src = ttsUrl;
+        audio.load();
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(function() {
-            audio.src = ttsUrlMirror;
-            audio.play().catch(function() {
-              currentAudioEl = null;
-              fallbackSpeechSynthesis();
-            });
+            tryMirrorOrFallback();
           });
         }
       }
@@ -1911,9 +1944,12 @@
       playNextChunk();
     }
 
-    function speakRandomStaff() {
+    function speakRandomStaff(onFinished) {
       const staff = getNextStaffFromFairQueue();
-      if (!staff) return;
+      if (!staff) {
+        if (onFinished) onFinished();
+        return;
+      }
 
       let textToSpeak = '';
       if (Array.isArray(staff.speeches) && staff.speeches.length > 0) {
@@ -1928,19 +1964,34 @@
 
       playSpeechAudio(textToSpeak, function() {
         if (micBtn) micBtn.classList.remove('speaking');
+        if (onFinished) onFinished();
       });
+    }
+
+    let nextSpeechTimerId = null;
+    function scheduleNextSpeech(delayMs) {
+      if (nextSpeechTimerId) {
+        clearTimeout(nextSpeechTimerId);
+        nextSpeechTimerId = null;
+      }
+      nextSpeechTimerId = setTimeout(function() {
+        speakRandomStaff(function() {
+          scheduleNextSpeech(12 * 60 * 1000);
+        });
+      }, delayMs);
     }
 
     const btnMic = document.getElementById('btn-mic');
     if (btnMic) {
       btnMic.addEventListener('click', function() {
         unlockAudio(false);
-        speakRandomStaff();
+        speakRandomStaff(function() {
+          scheduleNextSpeech(12 * 60 * 1000);
+        });
       });
     }
 
-    setTimeout(speakRandomStaff, 60 * 1000);
-    setInterval(speakRandomStaff, 12 * 60 * 1000);
+    scheduleNextSpeech(60 * 1000);
 
     const THEMES = [
       { id: 'auto', name: 'Otomatis', icon: '⏱️' },
@@ -2011,7 +2062,9 @@
       if (e.key === 'm' || e.key === 'M' || e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         unlockAudio();
-        speakRandomStaff();
+        speakRandomStaff(function() {
+          scheduleNextSpeech(12 * 60 * 1000);
+        });
       }
     });
 
