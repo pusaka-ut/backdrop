@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1019,6 +1020,7 @@
 
   <canvas id="ambient-canvas" class="clay-bg-canvas"></canvas>
   <video id="tv-wake-video" playsinline muted autoplay loop style="position:fixed;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-10;"></video>
+  <audio id="tv-speech-audio" preload="auto" style="position:fixed;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-10;"></audio>
   <div class="tv-audio-toast" id="tv-audio-toast">🔊 Tekan OK Remote / Ketuk Layar untuk Mengaktifkan Suara TV</div>
 
   <div class="floating-top-controls">
@@ -1713,35 +1715,75 @@
 
     let audioUnlocked = false;
     let currentAudioEl = null;
+    let staffSpeechQueue = [];
 
-    function unlockAudio() {
-      if (audioUnlocked) return;
-      audioUnlocked = true;
-      try {
-        const silentAudio = new Audio();
-        silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
-        silentAudio.play().catch(function() {});
-      } catch (e) {}
-      const toast = document.getElementById('tv-audio-toast');
-      if (toast) {
-        toast.style.opacity = '0';
-        toast.style.pointerEvents = 'none';
-        setTimeout(function() {
-          if (toast.parentNode) toast.parentNode.removeChild(toast);
-        }, 600);
+    function getNextStaffFromFairQueue() {
+      if (typeof STAFF_MEMBERS === 'undefined' || !STAFF_MEMBERS || STAFF_MEMBERS.length === 0) return null;
+      if (staffSpeechQueue.length === 0) {
+        staffSpeechQueue = STAFF_MEMBERS.map(function(_, i) { return i; });
+        for (let i = staffSpeechQueue.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = staffSpeechQueue[i];
+          staffSpeechQueue[i] = staffSpeechQueue[j];
+          staffSpeechQueue[j] = temp;
+        }
+      }
+      const nextIdx = staffSpeechQueue.shift();
+      return STAFF_MEMBERS[nextIdx];
+    }
+
+    function unlockAudio(triggerImmediate) {
+      if (!audioUnlocked) {
+        audioUnlocked = true;
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            const ctx = new AudioContext();
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            gain.gain.value = 0.0001;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(0);
+            osc.stop(0.02);
+          }
+        } catch (e) {}
+
+        const speechAudioEl = document.getElementById('tv-speech-audio');
+        if (speechAudioEl) {
+          speechAudioEl.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+          speechAudioEl.play().catch(function() {});
+        }
+
+        const toast = document.getElementById('tv-audio-toast');
+        if (toast) {
+          toast.style.opacity = '0';
+          toast.style.pointerEvents = 'none';
+          setTimeout(function() {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 600);
+        }
+
+        if (triggerImmediate) {
+          setTimeout(speakRandomStaff, 500);
+        }
       }
     }
 
     ['click', 'touchstart', 'keydown'].forEach(function(evt) {
-      document.addEventListener(evt, unlockAudio, { passive: true });
+      document.addEventListener(evt, function() {
+        if (!audioUnlocked) {
+          unlockAudio(true);
+        }
+      }, { passive: true });
     });
 
     const tvToast = document.getElementById('tv-audio-toast');
     if (tvToast) {
       tvToast.addEventListener('click', function(e) {
         e.stopPropagation();
-        unlockAudio();
-        speakRandomStaff();
+        unlockAudio(true);
       });
     }
 
@@ -1822,25 +1864,46 @@
 
         const chunk = chunks[chunkIdx++];
         const ttsUrl = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=id&client=tw-ob&q=' + encodeURIComponent(chunk);
-        const audio = new Audio();
-        currentAudioEl = audio;
-        audio.preload = 'auto';
-        audio.src = ttsUrl;
+        const ttsUrlMirror = 'https://translate.google.co.id/translate_tts?ie=UTF-8&tl=id&client=tw-ob&q=' + encodeURIComponent(chunk);
 
-        audio.onended = function() {
+        const audio = document.getElementById('tv-speech-audio') || new Audio();
+        currentAudioEl = audio;
+        if ('referrerPolicy' in audio) {
+          audio.referrerPolicy = 'no-referrer';
+        }
+        audio.preload = 'auto';
+
+        let hasHandledEnd = false;
+        function finishChunk() {
+          if (hasHandledEnd) return;
+          hasHandledEnd = true;
           playNextChunk();
-        };
+        }
+
+        audio.onended = finishChunk;
 
         audio.onerror = function() {
-          currentAudioEl = null;
-          fallbackSpeechSynthesis();
+          if (audio.src !== ttsUrlMirror) {
+            audio.src = ttsUrlMirror;
+            audio.play().catch(function() {
+              currentAudioEl = null;
+              fallbackSpeechSynthesis();
+            });
+          } else {
+            currentAudioEl = null;
+            fallbackSpeechSynthesis();
+          }
         };
 
+        audio.src = ttsUrl;
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(function() {
-            currentAudioEl = null;
-            fallbackSpeechSynthesis();
+            audio.src = ttsUrlMirror;
+            audio.play().catch(function() {
+              currentAudioEl = null;
+              fallbackSpeechSynthesis();
+            });
           });
         }
       }
@@ -1848,19 +1911,11 @@
       playNextChunk();
     }
 
-    let lastSpeechStaffIdx = -1;
-
     function speakRandomStaff() {
-      if (typeof STAFF_MEMBERS === 'undefined' || STAFF_MEMBERS.length === 0) return;
-      let idx;
-      do {
-        idx = Math.floor(Math.random() * STAFF_MEMBERS.length);
-      } while (idx === lastSpeechStaffIdx && STAFF_MEMBERS.length > 1);
-      lastSpeechStaffIdx = idx;
+      const staff = getNextStaffFromFairQueue();
+      if (!staff) return;
 
-      const staff = STAFF_MEMBERS[idx];
       let textToSpeak = '';
-
       if (Array.isArray(staff.speeches) && staff.speeches.length > 0) {
         const speechIdx = Math.floor(Math.random() * staff.speeches.length);
         textToSpeak = staff.speeches[speechIdx];
@@ -1879,12 +1934,13 @@
     const btnMic = document.getElementById('btn-mic');
     if (btnMic) {
       btnMic.addEventListener('click', function() {
-        unlockAudio();
+        unlockAudio(false);
         speakRandomStaff();
       });
     }
 
-    setInterval(speakRandomStaff, 30 * 60 * 1000);
+    setTimeout(speakRandomStaff, 60 * 1000);
+    setInterval(speakRandomStaff, 12 * 60 * 1000);
 
     const THEMES = [
       { id: 'auto', name: 'Otomatis', icon: '⏱️' },
@@ -1979,6 +2035,24 @@
         safeAutoReload();
       }
     }, 60 * 1000);
+
+    let currentDeployedETag = null;
+    function checkRemoteDeployment() {
+      fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
+        .then(function(res) {
+          const etag = res.headers.get('etag') || res.headers.get('last-modified');
+          if (etag) {
+            if (currentDeployedETag && currentDeployedETag !== etag) {
+              safeAutoReload();
+            } else if (!currentDeployedETag) {
+              currentDeployedETag = etag;
+            }
+          }
+        })
+        .catch(function() {});
+    }
+    setTimeout(checkRemoteDeployment, 10000);
+    setInterval(checkRemoteDeployment, 60 * 1000);
 
   })();
   </script>

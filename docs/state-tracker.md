@@ -9,12 +9,13 @@ File ini digunakan untuk melacak status fitur dan modul di repositori backdrop P
 - [x] Kartu sorot foto 18 staf resmi perpustakaan dari `foto-staff/` lengkap dengan quote inspiratif
 - [x] Evaluasi skema tebak-tebakan logika: Mystery Vault terkunci + Clue petunjuk, jawaban tertutup hingga countdown habis
 - [x] Penataan jadwal sholat 5 waktu hisab resmi Kemenag RI (Kota Tangerang Selatan) dengan auto-fetch API & offline fallback
-- [x] Integrasi Text-to-Speech otomatis setiap 30 menit dengan narasi khusus relevan sesuai jobdesk tiap staf
-- [x] Dual-Engine Audio TV: Pemutar audio stream MP3 via Google TTS (kompatibel penuh Smart TV) + Audio Gesture Unlocker
+- [x] Integrasi Text-to-Speech otomatis setiap 12 menit (Fair Shuffled Queue memastikan 18 staf terbaca minimal 2x sehari) dengan narasi variatif sesuai jobdesk tiap staf
+- [x] Dual-Engine Audio TV: Pemutar audio stream MP3 via Google TTS (kompatibel penuh Smart TV) + Audio Gesture Unlocker + Persistent Blessed Audio Element
 - [x] Tri-Guard TV Keep-Alive: Screen Wake Lock API + Hardware Video Stream Loop (`canvas.captureStream`) untuk mencegah TV sleep / standby otomatis
 - [x] 3 Variasi narasi per staf untuk 18 staf resmi (Jobdesk, Humor Karakter, Motivasi Membara)
 - [x] Pembersihan total teks header atas dan running text, hanya tersisa tombol kontrol semi-transparan (Theme, Mic, Fullscreen)
 - [x] Sistem 4 Tema Warna Waktu Alami (Pagi 🌅, Siang ☀️, Sore 🌇, Malam 🌙) otomatis sesuai jam lokal & tombol switcher manual (`#btn-theme` / shortcut `T`)
+- [x] Fast Version Watcher: Pengecekan remote HEAD ETag otomatis per 60 detik untuk auto-refresh TV instan saat ada push baru
 - [x] Tautkan modul `daily/` ke menu portal root `index.html`
 
 ## 2. Modul & Fitur Selesai (Completed)
